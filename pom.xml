@@ -9,10 +9,7 @@
     <version>0.0.2</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>X8l format is a type of data format,
-        it is designed to be a replacement of xml/json in most cases when you need the
-        data be shorter(while remains readability).
-    </description>
+    <description>A project to make docker saved image size smaller.</description>
     <url>https://github.com/XenoAmess/docker-image-rebecca</url>
     <licenses>
         <license>
