@@ -71,6 +71,13 @@ public class Encoder {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        for (File tempDuplicatedFile : tempDuplicatedFiles.values()) {
+            try {
+                tempDuplicatedFile.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Deprecated
@@ -323,6 +330,7 @@ public class Encoder {
         File file = tempDuplicatedFiles.get(readAndHashResultPojo.getHash());
         if (file == null) {
             file = File.createTempFile("rebecca-", ".tmp");
+            file.deleteOnExit();
             FileUtils.writeByteArrayToFile(file, readAndHashResultPojo.getData());
             tempDuplicatedFiles.put(readAndHashResultPojo.getHash(), file);
             TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
