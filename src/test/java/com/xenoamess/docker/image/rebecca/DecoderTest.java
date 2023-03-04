@@ -4,6 +4,7 @@ import java.nio.file.Paths;
 
 import com.xenoamess.docker.image.rebecca.decode.Decoder;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +12,9 @@ public class DecoderTest {
 
     @Test
     public void test() throws Exception {
+        if(!SystemUtils.IS_OS_WINDOWS){
+            return;
+        }
         Decoder.decode(
                 "src/test/resources/decode0.tar.rebecca"
         );
