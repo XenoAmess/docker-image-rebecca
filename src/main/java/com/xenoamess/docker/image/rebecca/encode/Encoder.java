@@ -54,7 +54,7 @@ public class Encoder {
             }
             Path outPath = Paths.get( outputFileRebecca );
             try {
-                outPath.toFile().getParentFile().mkdirs();
+                outPath.toFile().getParentFile().getAbsoluteFile().mkdirs();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -139,7 +139,7 @@ public class Encoder {
 
         File outputFile = Paths.get( outputFileRebecca ).toFile();
         try {
-            outputFile.getParentFile().mkdirs();
+            outputFile.getParentFile().getAbsoluteFile().mkdirs();
         } catch (Exception e) {
             e.printStackTrace();
         }

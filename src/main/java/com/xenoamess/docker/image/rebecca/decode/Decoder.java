@@ -255,17 +255,27 @@ public class Decoder {
             if (rebeccaPie) {
                 outputTarArchiveEntry.setName( outputTarArchiveEntry.getName().substring( 0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length() ) );
                 String hash;
+                byte[] hashBytes;
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
                     IOUtils.copy( outerTarArchiveInputStream, byteArrayOutputStream );
-                    hash = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
+                    hashBytes = byteArrayOutputStream.toByteArray();
+                    hash = new String(hashBytes, StandardCharsets.UTF_8);
                 }
                 FrontHashFilesPreparePojo frontHashFilesPreparePojo = frontHashFilesPrepareResult.get( hash );
-                File file = frontHashFilesPreparePojo.getTempHashFile();
-                byte[] bytes = FileUtils.readFileToByteArray( file );
-                outputTarArchiveEntry.setSize( bytes.length );
-                tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
-                tarArchiveOutputStream.write( bytes );
-                tarArchiveOutputStream.closeArchiveEntry();
+                if (frontHashFilesPreparePojo == null) {
+                    outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+                    tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+                    tarArchiveOutputStream.write(hashBytes);
+                    outputTarArchiveEntry.setSize( tarArchiveOutputStream.getBytesWritten() );
+                    tarArchiveOutputStream.closeArchiveEntry();
+                } else {
+                    File file = frontHashFilesPreparePojo.getTempHashFile();
+                    byte[] bytes = FileUtils.readFileToByteArray(file);
+                    outputTarArchiveEntry.setSize(bytes.length);
+                    tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
+                    tarArchiveOutputStream.write(bytes);
+                    tarArchiveOutputStream.closeArchiveEntry();
+                }
             } else {
                 tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                 IOUtils.copy( outerTarArchiveInputStream, tarArchiveOutputStream );
