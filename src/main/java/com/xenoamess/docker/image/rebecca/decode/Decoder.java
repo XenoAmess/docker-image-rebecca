@@ -1,8 +1,9 @@
-package com.xenoamess.docker.image.rebecca.encode;
+package com.xenoamess.docker.image.rebecca.decode;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,14 +13,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.xenoamess.docker.image.rebecca.pojo.FrontHashFilesPreparePojo;
 import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
-import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -28,18 +28,17 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class Encoder {
+public class Decoder {
 
-    public static void encode(@NotNull String inputFilePath) {
-        encode(inputFilePath, null);
+    public static void decode(@NotNull String inputFilePath) {
+        decode(inputFilePath, null);
     }
 
-    public static void encode(
+    public static void decode(
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
-        Map<String, Integer> frontSearchResult = FrontSearcher.frontSearch(inputFilePath);
-        Map<String, File> tempDuplicatedFiles = new HashMap<>((frontSearchResult.size() * 4 + 2) / 3);
+        Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult = FrontHashFilesPreparer.frontHashFilesPrepare(inputFilePath);
         try (
                 InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -49,58 +48,34 @@ public class Encoder {
             if (outputFilePath != null) {
                 outputFileRebecca = outputFilePath;
             } else {
-                outputFileRebecca = inputFilePath + ".rebecca";
+                outputFileRebecca = inputFilePath + ".out.tar";
             }
             try (
                     OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                     TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
             ) {
-                Encoder.handleTarFile(
+                Decoder.handleTarFile(
                         inputFilePath,
                         null,
                         false,
                         tarArchiveInputStream,
                         null,
                         tarArchiveOutputStream,
-                        tarArchiveOutputStream,
-                        frontSearchResult,
-                        tempDuplicatedFiles
+                        frontHashFilesPrepareResult
                 );
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        for (File tempDuplicatedFile : tempDuplicatedFiles.values()) {
+        for (FrontHashFilesPreparePojo frontHashFilesPreparePojo : frontHashFilesPrepareResult.values()) {
             try {
-                tempDuplicatedFile.delete();
+                frontHashFilesPreparePojo.getTempHashFile().delete();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
-
-    @Deprecated
-    @SuppressWarnings("RedundantArrayCreation")
-    private static final List<Pattern> FILTER_FILE_PATTERN = Arrays.asList(new Pattern[]{
-            //backend
-            Pattern.compile("^.*\\.jar$"), Pattern.compile("^.*\\.py$"),
-            //frontend
-            Pattern.compile("^.*\\.html$"), Pattern.compile("^.*\\.css$"), Pattern.compile("^.*\\.js$"), Pattern.compile("^.*\\.ts$"),
-            //config
-            Pattern.compile("^.*\\.conf$"), Pattern.compile("^.*\\.ini$"),
-            //zip
-            Pattern.compile("^.*\\.zip$"), Pattern.compile("^.*\\.gz$"), Pattern.compile("^.*\\.bz$"), Pattern.compile("^.*\\.bz2$"),
-            //text
-            Pattern.compile("^.*\\.md$"), Pattern.compile("^.*\\.txt$"),
-            //data
-            Pattern.compile("^.*\\.json$"), Pattern.compile("^.*\\.dtd$"), Pattern.compile("^.*\\.xml$"), Pattern.compile("^.*\\.properties$"), Pattern.compile("^.*\\.dat$"), Pattern.compile("^.*\\.data$"),
-            //image
-            Pattern.compile("^.*\\.ttf$"), Pattern.compile("^.*\\.jpg$"), Pattern.compile("^.*\\.bpm$"),
-            //doc
-            Pattern.compile("^.*\\.doc$"), Pattern.compile("^.*\\.pdf$"),
-            //license
-            Pattern.compile("^VERSION$"), Pattern.compile("^LICENSE$"), Pattern.compile("^ASSEMBLY_EXCEPTION$"), Pattern.compile("^ADDITIONAL_LICENSE_INFO$"),});
 
     static void handleTarFile(
             @NotNull String rootInputFilePath,
@@ -109,9 +84,7 @@ public class Encoder {
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @Nullable TarArchiveEntry outerInputTarArchiveEntry,
             @Nullable TarArchiveOutputStream outerTarArchiveOutputStream,
-            @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult,
-            @NotNull Map<String, File> tempDuplicatedFiles
+            @NotNull Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult
     ) {
         if (outerInputTarArchiveEntry != null) {
             System.out.println("tar file handling started : " + outerInputTarArchiveEntry.getName());
@@ -162,9 +135,7 @@ public class Encoder {
                                 tarArchiveInputStream,
                                 inputTarArchiveEntry,
                                 tarArchiveOutputStream,
-                                rootOuterTarArchiveOutputStream,
-                                frontSearchResult,
-                                tempDuplicatedFiles
+                                frontHashFilesPrepareResult
                         );
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -190,9 +161,7 @@ public class Encoder {
                         outerTarArchiveInputStream,
                         inputTarArchiveEntry,
                         tarArchiveOutputStream,
-                        rootOuterTarArchiveOutputStream,
-                        frontSearchResult,
-                        tempDuplicatedFiles
+                        frontHashFilesPrepareResult
                 );
             }
         } catch (Exception e) {
@@ -245,28 +214,14 @@ public class Encoder {
         if (outerInputTarArchiveEntry != null) {
             System.out.println("tar file handling ended : " + outerInputTarArchiveEntry.getName());
         }
-    }
 
-//    private static void handleMatchedFile(
-//            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
-//            @NotNull TarArchiveEntry inputTarArchiveEntry,
-//            @NotNull TarArchiveOutputStream tarArchiveOutputStream
-//    ) {
-//        System.out.println("matched file : " + inputTarArchiveEntry.getName());
-//        handleNormalFile(
-//                outerTarArchiveInputStream,
-//                inputTarArchiveEntry,
-//                tarArchiveOutputStream
-//        );
-//    }
+    }
 
     private static void handleNormalFile(
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull TarArchiveOutputStream tarArchiveOutputStream,
-            @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult,
-            @NotNull Map<String, File> tempDuplicatedFiles
+            @NotNull Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult
     ) {
         System.out.println("normal file : " + inputTarArchiveEntry.getName());
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
@@ -285,35 +240,27 @@ public class Encoder {
             outputTarArchiveEntry.setStatusChangeTime(inputTarArchiveEntry.getStatusChangeTime());
             outputTarArchiveEntry.setUserId(inputTarArchiveEntry.getLongUserId());
             outputTarArchiveEntry.setUserName(inputTarArchiveEntry.getUserName());
-            ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
-                    outerTarArchiveInputStream
-            );
-            final String hash = readAndHashResultPojo.getHash();
-            boolean rebeccaPie;
-            if (!frontSearchResult.containsKey(hash)) {
-                rebeccaPie = false;
-            } else {
-                rebeccaPie = handleHashFiles(
-                        rootOuterTarArchiveOutputStream,
-                        readAndHashResultPojo,
-                        tempDuplicatedFiles
-                );
-            }
+            boolean rebeccaPie = inputTarArchiveEntry.getName().endsWith(".rebecca_pie");
             if (rebeccaPie) {
-                outputTarArchiveEntry.setName(outputTarArchiveEntry.getName() + ".rebecca_pie");
-                byte[] hashStringBytes = readAndHashResultPojo.getHash().getBytes(StandardCharsets.UTF_8);
-                outputTarArchiveEntry.setSize(hashStringBytes.length);
+                outputTarArchiveEntry.setName(outputTarArchiveEntry.getName().substring(0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length()));
+                String hash;
+                try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                    IOUtils.copy(outerTarArchiveInputStream, byteArrayOutputStream);
+                    hash = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
+                }
+                FrontHashFilesPreparePojo frontHashFilesPreparePojo = frontHashFilesPrepareResult.get(hash);
+                File file = frontHashFilesPreparePojo.getTempHashFile();
                 tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                tarArchiveOutputStream.write(
-                        hashStringBytes
-                );
+                try (InputStream inputStream = FileUtils.openInputStream(file)) {
+                    IOUtils.copy(inputStream, tarArchiveOutputStream);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
                 tarArchiveOutputStream.closeArchiveEntry();
             } else {
                 tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
-                    IOUtils.copy(byteArrayInputStream, tarArchiveOutputStream);
-                }
+                IOUtils.copy(outerTarArchiveInputStream, tarArchiveOutputStream);
                 outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
                 tarArchiveOutputStream.closeArchiveEntry();
             }

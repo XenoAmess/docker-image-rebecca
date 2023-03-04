@@ -26,7 +26,7 @@ public class FrontSearcher {
             @NotNull String inputFilePath,
             @Nullable Function<Map.Entry<String, Integer>, Boolean> filter
     ) {
-        final Map<String, AtomicInteger> hashToCountPre = new ConcurrentHashMap<>();
+        final Map<String, AtomicInteger> hashToCountPre = new HashMap<>();
         try (
                 InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
