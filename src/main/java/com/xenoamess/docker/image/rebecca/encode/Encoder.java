@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
@@ -51,8 +52,14 @@ public class Encoder {
             } else {
                 outputFileRebecca = inputFilePath + ".rebecca";
             }
+            Path outPath = Paths.get( outputFileRebecca );
+            try {
+                outPath.toFile().getParentFile().mkdirs();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             try (
-                    OutputStream outputStream = Files.newOutputStream( Paths.get( outputFileRebecca ) );
+                    OutputStream outputStream = Files.newOutputStream( outPath );
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                     TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
             ) {

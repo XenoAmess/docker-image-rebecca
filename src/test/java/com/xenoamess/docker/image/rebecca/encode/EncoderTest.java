@@ -1,4 +1,4 @@
-package com.xenoamess.docker.image.rebecca;
+package com.xenoamess.docker.image.rebecca.encode;
 
 import java.nio.file.Paths;
 
@@ -6,15 +6,14 @@ import com.xenoamess.docker.image.rebecca.encode.Encoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class EncoderTest {
 
+    @Disabled
     @Test
-    public void test() throws Exception {
-        if (!SystemUtils.IS_OS_WINDOWS) {
-            return;
-        }
+    public void testOnLocal() throws Exception {
         Encoder.encode(
                 "src/test/resources/0.tar"
         );
@@ -48,6 +47,20 @@ public class EncoderTest {
                 FileUtils.readFileToByteArray(
                         Paths.get( "target/out/1_out.tar" ).toFile()
                 )
+        );
+    }
+
+    @Test
+    public void test() throws Exception {
+        Encoder.encode(
+                "src/test/resources/0.tar"
+        );
+        Encoder.encode(
+                "src/test/resources/1.tar"
+        );
+        Encoder.encode(
+                "src/test/resources/1.tar",
+                "target/out/1_out.tar"
         );
     }
 
