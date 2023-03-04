@@ -1,11 +1,4 @@
-package com.xenoamess.docker.image.rebecca;
-
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+package com.xenoamess.docker.image.rebecca.encode;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -15,15 +8,25 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class FrontSearcher {
 
     @NotNull
-    static Map<String, Integer> frontSearch(
+    public static Map<String, Integer> frontSearch(
             @NotNull String inputFilePath,
             @Nullable Function<Map.Entry<String, Integer>, Boolean> filter
     ) {
