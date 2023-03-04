@@ -16,10 +16,10 @@ public class DecoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode0_expected.tar.rebecca.out.tar").toFile()
+                        Paths.get( "src/test/resources/decode0_expected.tar.rebecca.out.tar" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode0.tar.rebecca.out.tar").toFile()
+                        Paths.get( "src/test/resources/decode0.tar.rebecca.out.tar" ).toFile()
                 )
         );
         Decoder.decode(
@@ -27,10 +27,10 @@ public class DecoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode1_expected.tar.rebecca.out.tar").toFile()
+                        Paths.get( "src/test/resources/decode1_expected.tar.rebecca.out.tar" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode1.tar.rebecca.out.tar").toFile()
+                        Paths.get( "src/test/resources/decode1.tar.rebecca.out.tar" ).toFile()
                 )
         );
         Decoder.decode(
@@ -39,10 +39,10 @@ public class DecoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode1_expected.tar.rebecca.out.tar").toFile()
+                        Paths.get( "src/test/resources/decode1_expected.tar.rebecca.out.tar" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("target/out/1_out.out.tar").toFile()
+                        Paths.get( "target/out/1_out.out.tar" ).toFile()
                 )
         );
     }

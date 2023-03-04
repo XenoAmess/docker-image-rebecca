@@ -25,14 +25,18 @@ public class FrontHashFilesPreparePojo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         FrontHashFilesPreparePojo that = (FrontHashFilesPreparePojo) o;
-        return getTempHashFile().equals(that.getTempHashFile());
+        return getTempHashFile().equals( that.getTempHashFile() );
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTempHashFile());
+        return Objects.hash( getTempHashFile() );
     }
 }

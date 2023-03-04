@@ -16,10 +16,10 @@ public class EncoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode0.tar.rebecca").toFile()
+                        Paths.get( "src/test/resources/decode0.tar.rebecca" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/0.tar.rebecca").toFile()
+                        Paths.get( "src/test/resources/0.tar.rebecca" ).toFile()
                 )
         );
         Encoder.encode(
@@ -27,10 +27,10 @@ public class EncoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode1.tar.rebecca").toFile()
+                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/1.tar.rebecca").toFile()
+                        Paths.get( "src/test/resources/1.tar.rebecca" ).toFile()
                 )
         );
         Encoder.encode(
@@ -39,10 +39,10 @@ public class EncoderTest {
         );
         Assertions.assertArrayEquals(
                 FileUtils.readFileToByteArray(
-                        Paths.get("src/test/resources/decode1.tar.rebecca").toFile()
+                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
                 ),
                 FileUtils.readFileToByteArray(
-                        Paths.get("target/out/1_out.tar").toFile()
+                        Paths.get( "target/out/1_out.tar" ).toFile()
                 )
         );
     }

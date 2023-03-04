@@ -52,15 +52,15 @@ public class RebeccaCommandLine {
     }
 
     public static void printHelp() {
-        System.out.println("Use it as:");
-        System.out.println("  Encode with input and output:");
-        System.out.println("    encode 1.tar 1.tar.rebecca");
-        System.out.println("  Encode only input (auto name output):");
-        System.out.println("    encode 1.tar");
-        System.out.println("  Decode with input and output:");
-        System.out.println("    decode 1.tar.rebecca 1.tar");
-        System.out.println("  Decode only input (auto name output):");
-        System.out.println("    decode 1.tar.rebecca");
+        System.out.println( "Use it as:" );
+        System.out.println( "  Encode with input and output:" );
+        System.out.println( "    encode 1.tar 1.tar.rebecca" );
+        System.out.println( "  Encode only input (auto name output):" );
+        System.out.println( "    encode 1.tar" );
+        System.out.println( "  Decode with input and output:" );
+        System.out.println( "    decode 1.tar.rebecca 1.tar" );
+        System.out.println( "  Decode only input (auto name output):" );
+        System.out.println( "    decode 1.tar.rebecca" );
     }
 
     public static void encode(

@@ -25,7 +25,7 @@ public class FrontHashFilesPreparer {
     ) {
         final Map<String, FrontHashFilesPreparePojo> result = new HashMap<>();
         try (
-                InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
+                InputStream inputStream = Files.newInputStream( Paths.get( inputFilePath ) );
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
                 TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
         ) {
@@ -65,13 +65,13 @@ public class FrontHashFilesPreparer {
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull Map<String, FrontHashFilesPreparePojo> result
     ) {
-        System.out.println("normal file : " + inputTarArchiveEntry.getName());
-        if (!inputTarArchiveEntry.getName().startsWith("hash_files/")) {
+        System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
+        if (!inputTarArchiveEntry.getName().startsWith( "hash_files/" )) {
             return;
         }
-        String hash = inputTarArchiveEntry.getName().substring("hash_files/".length());
+        String hash = inputTarArchiveEntry.getName().substring( "hash_files/".length() );
         try {
-            File tempFile = File.createTempFile("rebecca-", ".decode");
+            File tempFile = File.createTempFile( "rebecca-", ".decode" );
             tempFile.deleteOnExit();
             try (
                     FileOutputStream outputStream = new FileOutputStream(tempFile);
@@ -91,6 +91,9 @@ public class FrontHashFilesPreparer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private FrontHashFilesPreparer() {
     }
 
 }

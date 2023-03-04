@@ -26,7 +26,7 @@ public class ReadAndHashUtil {
                     inputStream,
                     byteArrayOutputStream
             );
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
+            MessageDigest messageDigest = MessageDigest.getInstance( "SHA-512" );
             long fileSize = 0;
             byte[] data = byteArrayOutputStream.toByteArray();
             try (
@@ -34,7 +34,7 @@ public class ReadAndHashUtil {
                     DigestInputStream dis = new DigestInputStream(byteArrayInputStream, messageDigest)
             ) {
                 while (true) {
-                    int readLength = dis.read(READ_CACHE);
+                    int readLength = dis.read( READ_CACHE );
                     if (readLength == -1) {
                         break;
                     }
@@ -43,7 +43,7 @@ public class ReadAndHashUtil {
                 /* Read decorated stream (dis) to EOF as normal... */
             }
             byte[] digest = messageDigest.digest();
-            String hash = new String(Base64.getUrlEncoder().encode(digest));
+            String hash = new String(Base64.getUrlEncoder().encode( digest ));
             return new ReadAndHashResultPojo(
                     data,
                     hash
@@ -52,6 +52,9 @@ public class ReadAndHashUtil {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+
+    private ReadAndHashUtil() {
     }
 
 }

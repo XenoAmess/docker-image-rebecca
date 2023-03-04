@@ -27,7 +27,7 @@ public class FrontSearcher {
     ) {
         final Map<String, AtomicInteger> hashToCountPre = new HashMap<>();
         try (
-                InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
+                InputStream inputStream = Files.newInputStream( Paths.get( inputFilePath ) );
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
                 TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
         ) {
@@ -84,7 +84,7 @@ public class FrontSearcher {
             @NotNull Map<String, AtomicInteger> hashToCountPre
     ) {
         if (outerInputTarArchiveEntry != null) {
-            System.out.println("tar file handling started : " + outerInputTarArchiveEntry.getName());
+            System.out.println( "tar file handling started : " + outerInputTarArchiveEntry.getName() );
         }
         String outputFileOri;
         if (outerInputTarArchiveEntry == null) {
@@ -95,14 +95,14 @@ public class FrontSearcher {
         String outputFileRebecca = outputFileOri + ".rebecca";
         try {
             if (outerInputTarArchiveEntry != null) {
-                Paths.get(outputFileRebecca).toFile().deleteOnExit();
+                Paths.get( outputFileRebecca ).toFile().deleteOnExit();
             }
             while (true) {
                 TarArchiveEntry inputTarArchiveEntry = outerTarArchiveInputStream.getNextTarEntry();
                 if (inputTarArchiveEntry == null) {
                     break;
                 }
-                if (inputTarArchiveEntry.getName().endsWith(".tar")) {
+                if (inputTarArchiveEntry.getName().endsWith( ".tar" )) {
                     String outputFileOri2 = rootInputTarFileName + "." + UUID.randomUUID() + ".ori";
                     String outputFileRebecca2 = outputFileOri2 + ".rebecca";
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(outerTarArchiveInputStream);
@@ -129,7 +129,7 @@ public class FrontSearcher {
             e.printStackTrace();
         }
         if (outerInputTarArchiveEntry != null) {
-            System.out.println("tar file handling ended : " + outerInputTarArchiveEntry.getName());
+            System.out.println( "tar file handling ended : " + outerInputTarArchiveEntry.getName() );
         }
     }
 
@@ -138,25 +138,25 @@ public class FrontSearcher {
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull Map<String, AtomicInteger> hashToCountPre
     ) {
-        System.out.println("normal file : " + inputTarArchiveEntry.getName());
+        System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
                 inputTarArchiveEntry.getName()
         );
         try {
-            outputTarArchiveEntry.setName(inputTarArchiveEntry.getName());
-            outputTarArchiveEntry.setCreationTime(inputTarArchiveEntry.getCreationTime());
-            outputTarArchiveEntry.setDevMajor(inputTarArchiveEntry.getDevMajor());
-            outputTarArchiveEntry.setDevMinor(inputTarArchiveEntry.getDevMinor());
-            outputTarArchiveEntry.setGroupId(inputTarArchiveEntry.getLongGroupId());
-            outputTarArchiveEntry.setLastAccessTime(inputTarArchiveEntry.getLastAccessTime());
-            outputTarArchiveEntry.setLastModifiedTime(inputTarArchiveEntry.getLastModifiedTime());
-            outputTarArchiveEntry.setLinkName(inputTarArchiveEntry.getLinkName());
-            outputTarArchiveEntry.setMode(inputTarArchiveEntry.getMode());
-            outputTarArchiveEntry.setModTime(inputTarArchiveEntry.getModTime());
-            outputTarArchiveEntry.setSize(inputTarArchiveEntry.getSize());
-            outputTarArchiveEntry.setStatusChangeTime(inputTarArchiveEntry.getStatusChangeTime());
-            outputTarArchiveEntry.setUserId(inputTarArchiveEntry.getLongUserId());
-            outputTarArchiveEntry.setUserName(inputTarArchiveEntry.getUserName());
+            outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+            outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
+            outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
+            outputTarArchiveEntry.setDevMinor( inputTarArchiveEntry.getDevMinor() );
+            outputTarArchiveEntry.setGroupId( inputTarArchiveEntry.getLongGroupId() );
+            outputTarArchiveEntry.setLastAccessTime( inputTarArchiveEntry.getLastAccessTime() );
+            outputTarArchiveEntry.setLastModifiedTime( inputTarArchiveEntry.getLastModifiedTime() );
+            outputTarArchiveEntry.setLinkName( inputTarArchiveEntry.getLinkName() );
+            outputTarArchiveEntry.setMode( inputTarArchiveEntry.getMode() );
+            outputTarArchiveEntry.setModTime( inputTarArchiveEntry.getModTime() );
+            outputTarArchiveEntry.setSize( inputTarArchiveEntry.getSize() );
+            outputTarArchiveEntry.setStatusChangeTime( inputTarArchiveEntry.getStatusChangeTime() );
+            outputTarArchiveEntry.setUserId( inputTarArchiveEntry.getLongUserId() );
+            outputTarArchiveEntry.setUserName( inputTarArchiveEntry.getUserName() );
 
             ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
                     outerTarArchiveInputStream
@@ -166,9 +166,9 @@ public class FrontSearcher {
                 return;
             }
             final String hash = readAndHashResultPojo.getHash();
-            AtomicInteger count = hashToCountPre.get(hash);
+            AtomicInteger count = hashToCountPre.get( hash );
             if (count == null) {
-                hashToCountPre.put(hash, new AtomicInteger(1));
+                hashToCountPre.put( hash, new AtomicInteger(1) );
             } else {
                 count.incrementAndGet();
             }
@@ -176,6 +176,9 @@ public class FrontSearcher {
             e.printStackTrace();
         }
 
+    }
+
+    private FrontSearcher() {
     }
 
 }

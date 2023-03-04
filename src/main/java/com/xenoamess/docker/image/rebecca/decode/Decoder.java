@@ -31,22 +31,22 @@ import org.jetbrains.annotations.Nullable;
 public class Decoder {
 
     public static void decode(@NotNull String inputFilePath) {
-        decode(inputFilePath, null);
+        decode( inputFilePath, null );
     }
 
     public static void decode(
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
-        Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult = FrontHashFilesPreparer.frontHashFilesPrepare(inputFilePath);
+        Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult = FrontHashFilesPreparer.frontHashFilesPrepare( inputFilePath );
         try (
-                TarFile outerTarFile = new TarFile(Paths.get(inputFilePath));
+                TarFile outerTarFile = new TarFile(Paths.get( inputFilePath ));
                 InputStream inputStream = outerTarFile.getInputStream(
                         outerTarFile.getEntries().stream().filter(
                                 new Predicate<TarArchiveEntry>() {
                                     @Override
                                     public boolean test(TarArchiveEntry tarArchiveEntry) {
-                                        return "origin.tar".equals(tarArchiveEntry.getName());
+                                        return "origin.tar".equals( tarArchiveEntry.getName() );
                                     }
                                 }
                         ).findFirst().orElseThrow(
@@ -98,7 +98,7 @@ public class Decoder {
             @NotNull Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult
     ) {
         if (outerInputTarArchiveEntry != null) {
-            System.out.println("tar file handling started : " + outerInputTarArchiveEntry.getName());
+            System.out.println( "tar file handling started : " + outerInputTarArchiveEntry.getName() );
         }
 
         String outputFileRebecca;
@@ -114,26 +114,26 @@ public class Decoder {
             outputFileRebecca = outputFileOri + ".rebecca";
         }
 
-        File outputFile = Paths.get(outputFileRebecca).toFile();
+        File outputFile = Paths.get( outputFileRebecca ).toFile();
         try {
             outputFile.getParentFile().mkdirs();
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (
-                OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
+                OutputStream outputStream = Files.newOutputStream( Paths.get( outputFileRebecca ) );
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                 TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
         ) {
             if (!isRoot) {
-                Paths.get(outputFileRebecca).toFile().deleteOnExit();
+                Paths.get( outputFileRebecca ).toFile().deleteOnExit();
             }
             while (true) {
                 TarArchiveEntry inputTarArchiveEntry = outerTarArchiveInputStream.getNextTarEntry();
                 if (inputTarArchiveEntry == null) {
                     break;
                 }
-                if (inputTarArchiveEntry.getName().endsWith(".tar")) {
+                if (inputTarArchiveEntry.getName().endsWith( ".tar" )) {
                     String outputFileOri2 = rootInputFilePath + "." + UUID.randomUUID() + ".ori";
                     String outputFileRebecca2 = outputFileOri2 + ".rebecca";
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(outerTarArchiveInputStream);
@@ -182,48 +182,48 @@ public class Decoder {
             TarArchiveEntry outputTarArchiveEntry = null;
             try {
                 if (outerInputTarArchiveEntry != null) {
-                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get(outputFileRebecca));
-                    outputTarArchiveEntry.setName(outerInputTarArchiveEntry.getName());
-                    outputTarArchiveEntry.setCreationTime(outerInputTarArchiveEntry.getCreationTime());
-                    outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
-                    outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
-                    outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
-                    outputTarArchiveEntry.setLastAccessTime(outerInputTarArchiveEntry.getLastAccessTime());
-                    outputTarArchiveEntry.setLastModifiedTime(outerInputTarArchiveEntry.getLastModifiedTime());
-                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
-                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
-                    outputTarArchiveEntry.setModTime(outerInputTarArchiveEntry.getModTime());
-                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
-                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
-                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
+                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get( outputFileRebecca ));
+                    outputTarArchiveEntry.setName( outerInputTarArchiveEntry.getName() );
+                    outputTarArchiveEntry.setCreationTime( outerInputTarArchiveEntry.getCreationTime() );
+                    outputTarArchiveEntry.setDevMajor( outerInputTarArchiveEntry.getDevMajor() );
+                    outputTarArchiveEntry.setDevMinor( outerInputTarArchiveEntry.getDevMinor() );
+                    outputTarArchiveEntry.setGroupId( outerInputTarArchiveEntry.getLongGroupId() );
+                    outputTarArchiveEntry.setLastAccessTime( outerInputTarArchiveEntry.getLastAccessTime() );
+                    outputTarArchiveEntry.setLastModifiedTime( outerInputTarArchiveEntry.getLastModifiedTime() );
+                    outputTarArchiveEntry.setLinkName( outerInputTarArchiveEntry.getLinkName() );
+                    outputTarArchiveEntry.setMode( outerInputTarArchiveEntry.getMode() );
+                    outputTarArchiveEntry.setModTime( outerInputTarArchiveEntry.getModTime() );
+                    outputTarArchiveEntry.setStatusChangeTime( outerInputTarArchiveEntry.getStatusChangeTime() );
+                    outputTarArchiveEntry.setUserId( outerInputTarArchiveEntry.getLongUserId() );
+                    outputTarArchiveEntry.setUserName( outerInputTarArchiveEntry.getUserName() );
                 } else {
-                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get(outputFileRebecca));
-                    outputTarArchiveEntry.setName("origin.tar");
-                    outputTarArchiveEntry.setCreationTime(FileTime.fromMillis(0));
+                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get( outputFileRebecca ));
+                    outputTarArchiveEntry.setName( "origin.tar" );
+                    outputTarArchiveEntry.setCreationTime( FileTime.fromMillis( 0 ) );
 //                    outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
 //                    outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
 //                    outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
-                    outputTarArchiveEntry.setLastAccessTime(FileTime.fromMillis(0));
-                    outputTarArchiveEntry.setLastModifiedTime(FileTime.fromMillis(0));
+                    outputTarArchiveEntry.setLastAccessTime( FileTime.fromMillis( 0 ) );
+                    outputTarArchiveEntry.setLastModifiedTime( FileTime.fromMillis( 0 ) );
 //                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
 //                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
-                    outputTarArchiveEntry.setModTime(FileTime.fromMillis(0));
+                    outputTarArchiveEntry.setModTime( FileTime.fromMillis( 0 ) );
 //                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
 //                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
 //                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
                 }
 
 
-                outerTarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                IOUtils.copy(Files.newInputStream(Paths.get(outputFileRebecca)), outerTarArchiveOutputStream);
-                outputTarArchiveEntry.setSize(outerTarArchiveOutputStream.getBytesWritten());
+                outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+                IOUtils.copy( Files.newInputStream( Paths.get( outputFileRebecca ) ), outerTarArchiveOutputStream );
+                outputTarArchiveEntry.setSize( outerTarArchiveOutputStream.getBytesWritten() );
                 outerTarArchiveOutputStream.closeArchiveEntry();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (outerInputTarArchiveEntry != null) {
-            System.out.println("tar file handling ended : " + outerInputTarArchiveEntry.getName());
+            System.out.println( "tar file handling ended : " + outerInputTarArchiveEntry.getName() );
         }
 
     }
@@ -234,42 +234,42 @@ public class Decoder {
             @NotNull TarArchiveOutputStream tarArchiveOutputStream,
             @NotNull Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult
     ) {
-        System.out.println("normal file : " + inputTarArchiveEntry.getName());
+        System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
         try {
-            outputTarArchiveEntry.setName(inputTarArchiveEntry.getName());
-            outputTarArchiveEntry.setCreationTime(inputTarArchiveEntry.getCreationTime());
-            outputTarArchiveEntry.setDevMajor(inputTarArchiveEntry.getDevMajor());
-            outputTarArchiveEntry.setDevMinor(inputTarArchiveEntry.getDevMinor());
-            outputTarArchiveEntry.setGroupId(inputTarArchiveEntry.getLongGroupId());
-            outputTarArchiveEntry.setLastAccessTime(inputTarArchiveEntry.getLastAccessTime());
-            outputTarArchiveEntry.setLastModifiedTime(inputTarArchiveEntry.getLastModifiedTime());
-            outputTarArchiveEntry.setLinkName(inputTarArchiveEntry.getLinkName());
-            outputTarArchiveEntry.setMode(inputTarArchiveEntry.getMode());
-            outputTarArchiveEntry.setModTime(inputTarArchiveEntry.getModTime());
-            outputTarArchiveEntry.setSize(inputTarArchiveEntry.getSize());
-            outputTarArchiveEntry.setStatusChangeTime(inputTarArchiveEntry.getStatusChangeTime());
-            outputTarArchiveEntry.setUserId(inputTarArchiveEntry.getLongUserId());
-            outputTarArchiveEntry.setUserName(inputTarArchiveEntry.getUserName());
-            boolean rebeccaPie = inputTarArchiveEntry.getName().endsWith(".rebecca_pie");
+            outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+            outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
+            outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
+            outputTarArchiveEntry.setDevMinor( inputTarArchiveEntry.getDevMinor() );
+            outputTarArchiveEntry.setGroupId( inputTarArchiveEntry.getLongGroupId() );
+            outputTarArchiveEntry.setLastAccessTime( inputTarArchiveEntry.getLastAccessTime() );
+            outputTarArchiveEntry.setLastModifiedTime( inputTarArchiveEntry.getLastModifiedTime() );
+            outputTarArchiveEntry.setLinkName( inputTarArchiveEntry.getLinkName() );
+            outputTarArchiveEntry.setMode( inputTarArchiveEntry.getMode() );
+            outputTarArchiveEntry.setModTime( inputTarArchiveEntry.getModTime() );
+            outputTarArchiveEntry.setSize( inputTarArchiveEntry.getSize() );
+            outputTarArchiveEntry.setStatusChangeTime( inputTarArchiveEntry.getStatusChangeTime() );
+            outputTarArchiveEntry.setUserId( inputTarArchiveEntry.getLongUserId() );
+            outputTarArchiveEntry.setUserName( inputTarArchiveEntry.getUserName() );
+            boolean rebeccaPie = inputTarArchiveEntry.getName().endsWith( ".rebecca_pie" );
             if (rebeccaPie) {
-                outputTarArchiveEntry.setName(outputTarArchiveEntry.getName().substring(0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length()));
+                outputTarArchiveEntry.setName( outputTarArchiveEntry.getName().substring( 0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length() ) );
                 String hash;
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-                    IOUtils.copy(outerTarArchiveInputStream, byteArrayOutputStream);
+                    IOUtils.copy( outerTarArchiveInputStream, byteArrayOutputStream );
                     hash = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
                 }
-                FrontHashFilesPreparePojo frontHashFilesPreparePojo = frontHashFilesPrepareResult.get(hash);
+                FrontHashFilesPreparePojo frontHashFilesPreparePojo = frontHashFilesPrepareResult.get( hash );
                 File file = frontHashFilesPreparePojo.getTempHashFile();
-                byte[] bytes = FileUtils.readFileToByteArray(file);
-                outputTarArchiveEntry.setSize(bytes.length);
-                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                tarArchiveOutputStream.write(bytes);
+                byte[] bytes = FileUtils.readFileToByteArray( file );
+                outputTarArchiveEntry.setSize( bytes.length );
+                tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+                tarArchiveOutputStream.write( bytes );
                 tarArchiveOutputStream.closeArchiveEntry();
             } else {
-                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                IOUtils.copy(outerTarArchiveInputStream, tarArchiveOutputStream);
-                outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
+                tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+                IOUtils.copy( outerTarArchiveInputStream, tarArchiveOutputStream );
+                outputTarArchiveEntry.setSize( tarArchiveOutputStream.getBytesWritten() );
                 tarArchiveOutputStream.closeArchiveEntry();
             }
         } catch (Exception e) {
@@ -282,27 +282,30 @@ public class Decoder {
             @NotNull ReadAndHashResultPojo readAndHashResultPojo,
             @NotNull Map<String, File> tempDuplicatedFiles
     ) throws IOException {
-        File file = tempDuplicatedFiles.get(readAndHashResultPojo.getHash());
+        File file = tempDuplicatedFiles.get( readAndHashResultPojo.getHash() );
         if (file == null) {
-            file = File.createTempFile("rebecca-", ".encode");
+            file = File.createTempFile( "rebecca-", ".encode" );
             file.deleteOnExit();
-            FileUtils.writeByteArrayToFile(file, readAndHashResultPojo.getData());
-            tempDuplicatedFiles.put(readAndHashResultPojo.getHash(), file);
+            FileUtils.writeByteArrayToFile( file, readAndHashResultPojo.getData() );
+            tempDuplicatedFiles.put( readAndHashResultPojo.getHash(), file );
             TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
-            fileTarArchiveEntry.setSize(readAndHashResultPojo.getData().length);
-            rootOuterTarArchiveOutputStream.putArchiveEntry(fileTarArchiveEntry);
+            fileTarArchiveEntry.setSize( readAndHashResultPojo.getData().length );
+            rootOuterTarArchiveOutputStream.putArchiveEntry( fileTarArchiveEntry );
             try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
-                IOUtils.copy(byteArrayInputStream, rootOuterTarArchiveOutputStream);
+                IOUtils.copy( byteArrayInputStream, rootOuterTarArchiveOutputStream );
             }
-            fileTarArchiveEntry.setSize(rootOuterTarArchiveOutputStream.getBytesWritten());
+            fileTarArchiveEntry.setSize( rootOuterTarArchiveOutputStream.getBytesWritten() );
             rootOuterTarArchiveOutputStream.closeArchiveEntry();
             return true;
         } else {
             return Arrays.equals(
-                    FileUtils.readFileToByteArray(file),
+                    FileUtils.readFileToByteArray( file ),
                     readAndHashResultPojo.getData()
             );
         }
+    }
+
+    private Decoder() {
     }
 
 }

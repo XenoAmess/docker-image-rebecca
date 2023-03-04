@@ -38,9 +38,9 @@ public class ReadAndHashResultPojo {
 
     @Override
     public String toString() {
-        return "ReadAndHashResultPojo{" +
-                "data=" + Arrays.toString(data) +
-                ", hash='" + hash + '\'' +
-                '}';
+        return "ReadAndHashResultPojo{"
+                + "data=" + Arrays.toString( data )
+                + ", hash='" + hash + '\''
+                + '}';
     }
 }
