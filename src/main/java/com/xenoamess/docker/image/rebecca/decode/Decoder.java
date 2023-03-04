@@ -116,7 +116,7 @@ public class Decoder {
 
         File outputFile = Paths.get( outputFileRebecca ).toFile();
         try {
-            outputFile.getParentFile().mkdirs();
+            outputFile.getParentFile().getAbsoluteFile().mkdirs();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -252,14 +252,17 @@ public class Decoder {
             outputTarArchiveEntry.setUserId( inputTarArchiveEntry.getLongUserId() );
             outputTarArchiveEntry.setUserName( inputTarArchiveEntry.getUserName() );
             boolean rebeccaPie = inputTarArchiveEntry.getName().endsWith( ".rebecca_pie" );
+            FrontHashFilesPreparePojo frontHashFilesPreparePojo = null;
             if (rebeccaPie) {
-                outputTarArchiveEntry.setName( outputTarArchiveEntry.getName().substring( 0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length() ) );
+                outputTarArchiveEntry.setName(outputTarArchiveEntry.getName().substring(0, outputTarArchiveEntry.getName().length() - ".rebecca_pie".length()));
                 String hash;
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-                    IOUtils.copy( outerTarArchiveInputStream, byteArrayOutputStream );
+                    IOUtils.copy(outerTarArchiveInputStream, byteArrayOutputStream);
                     hash = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8);
                 }
-                FrontHashFilesPreparePojo frontHashFilesPreparePojo = frontHashFilesPrepareResult.get( hash );
+                frontHashFilesPreparePojo = frontHashFilesPrepareResult.get(hash);
+            }
+            if (frontHashFilesPreparePojo != null) {
                 File file = frontHashFilesPreparePojo.getTempHashFile();
                 byte[] bytes = FileUtils.readFileToByteArray( file );
                 outputTarArchiveEntry.setSize( bytes.length );
