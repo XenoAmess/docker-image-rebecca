@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,6 +39,7 @@ public class Encoder {
             @Nullable String outputFilePath
     ) {
         Map<String, Integer> frontSearchResult = FrontSearcher.frontSearch(inputFilePath);
+        Map<String, File> tempDuplicatedFiles = new HashMap<>((frontSearchResult.size() * 4 + 2) / 3);
         try (
                 InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
@@ -61,7 +64,8 @@ public class Encoder {
                         null,
                         tarArchiveOutputStream,
                         tarArchiveOutputStream,
-                        frontSearchResult
+                        frontSearchResult,
+                        tempDuplicatedFiles
                 );
             }
         } catch (Exception e) {
@@ -99,7 +103,8 @@ public class Encoder {
             @Nullable TarArchiveEntry outerInputTarArchiveEntry,
             @Nullable TarArchiveOutputStream outerTarArchiveOutputStream,
             @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult
+            @NotNull Map<String, Integer> frontSearchResult,
+            @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         if (outerInputTarArchiveEntry != null) {
             System.out.println("tar file handling started : " + outerInputTarArchiveEntry.getName());
@@ -151,7 +156,8 @@ public class Encoder {
                                 inputTarArchiveEntry,
                                 tarArchiveOutputStream,
                                 rootOuterTarArchiveOutputStream,
-                                frontSearchResult
+                                frontSearchResult,
+                                tempDuplicatedFiles
                         );
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -178,7 +184,8 @@ public class Encoder {
                         inputTarArchiveEntry,
                         tarArchiveOutputStream,
                         rootOuterTarArchiveOutputStream,
-                        frontSearchResult
+                        frontSearchResult,
+                        tempDuplicatedFiles
                 );
             }
         } catch (Exception e) {
@@ -251,7 +258,8 @@ public class Encoder {
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull TarArchiveOutputStream tarArchiveOutputStream,
             @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult
+            @NotNull Map<String, Integer> frontSearchResult,
+            @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         System.out.println("normal file : " + inputTarArchiveEntry.getName());
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
@@ -274,14 +282,17 @@ public class Encoder {
                     outerTarArchiveInputStream
             );
             final String hash = readAndHashResultPojo.getHash();
+            boolean rebeccaPie;
             if (!frontSearchResult.containsKey(hash)) {
-                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
-                    IOUtils.copy(byteArrayInputStream, tarArchiveOutputStream);
-                }
-                outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
-                tarArchiveOutputStream.closeArchiveEntry();
+                rebeccaPie = false;
             } else {
+                rebeccaPie = handleHashFiles(
+                        rootOuterTarArchiveOutputStream,
+                        readAndHashResultPojo,
+                        tempDuplicatedFiles
+                );
+            }
+            if (rebeccaPie) {
                 outputTarArchiveEntry.setName(outputTarArchiveEntry.getName() + ".rebecca_pie");
                 byte[] hashStringBytes = readAndHashResultPojo.getHash().getBytes(StandardCharsets.UTF_8);
                 outputTarArchiveEntry.setSize(hashStringBytes.length);
@@ -291,20 +302,48 @@ public class Encoder {
                 );
                 outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
                 tarArchiveOutputStream.closeArchiveEntry();
-                {
-                    TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
-                    fileTarArchiveEntry.setSize(readAndHashResultPojo.getData().length);
-                    rootOuterTarArchiveOutputStream.putArchiveEntry(fileTarArchiveEntry);
-                    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
-                        IOUtils.copy(byteArrayInputStream, rootOuterTarArchiveOutputStream);
-                    }
-                    fileTarArchiveEntry.setSize(rootOuterTarArchiveOutputStream.getBytesWritten());
-                    rootOuterTarArchiveOutputStream.closeArchiveEntry();
+            } else {
+                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
+                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
+                    IOUtils.copy(byteArrayInputStream, tarArchiveOutputStream);
                 }
-
+                outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
+                tarArchiveOutputStream.closeArchiveEntry();
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static boolean handleHashFiles(
+            @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
+            @NotNull ReadAndHashResultPojo readAndHashResultPojo,
+            @NotNull Map<String, File> tempDuplicatedFiles
+    ) throws IOException {
+        File file = tempDuplicatedFiles.get(readAndHashResultPojo.getHash());
+        if (file == null) {
+            file = File.createTempFile("rebecca-", ".tmp");
+            FileUtils.writeByteArrayToFile(file, readAndHashResultPojo.getData());
+            tempDuplicatedFiles.put(readAndHashResultPojo.getHash(), file);
+            TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
+            fileTarArchiveEntry.setSize(readAndHashResultPojo.getData().length);
+            rootOuterTarArchiveOutputStream.putArchiveEntry(fileTarArchiveEntry);
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
+                IOUtils.copy(byteArrayInputStream, rootOuterTarArchiveOutputStream);
+            }
+            fileTarArchiveEntry.setSize(rootOuterTarArchiveOutputStream.getBytesWritten());
+            rootOuterTarArchiveOutputStream.closeArchiveEntry();
+            return true;
+        } else {
+            if (
+                    Arrays.equals(
+                            FileUtils.readFileToByteArray(file),
+                            readAndHashResultPojo.getData()
+                    )
+            ) {
+                return true;
+            }
+            return false;
         }
     }
 
