@@ -100,7 +100,7 @@ public class Encoder {
             //doc
             Pattern.compile( "^.*\\.doc$" ), Pattern.compile( "^.*\\.pdf$" ),
             //license
-            Pattern.compile( "^VERSION$" ), Pattern.compile( "^LICENSE$" ), Pattern.compile( "^ASSEMBLY_EXCEPTION$" ), Pattern.compile( "^ADDITIONAL_LICENSE_INFO$" ),} );
+            Pattern.compile( "^VERSION$" ), Pattern.compile( "^LICENSE$" ), Pattern.compile( "^ASSEMBLY_EXCEPTION$" ), Pattern.compile( "^ADDITIONAL_LICENSE_INFO$" )} );
 
     static void handleTarFile(
             @NotNull String rootInputFilePath,
