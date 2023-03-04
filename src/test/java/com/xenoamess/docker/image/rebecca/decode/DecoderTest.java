@@ -2,7 +2,6 @@ package com.xenoamess.docker.image.rebecca.decode;
 
 import java.nio.file.Paths;
 
-import com.xenoamess.docker.image.rebecca.decode.Decoder;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
