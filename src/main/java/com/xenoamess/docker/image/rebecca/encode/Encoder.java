@@ -14,11 +14,10 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
+import com.xenoamess.docker.image.rebecca.pojo.FrontSearchResultPojo;
 import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
 import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -32,14 +31,32 @@ import org.jetbrains.annotations.Nullable;
 public class Encoder {
 
     public static void encode(@NotNull String inputFilePath) {
-        encode( inputFilePath, null );
+        encode(
+                inputFilePath,
+                null
+        );
     }
 
     public static void encode(
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
-        Map<String, Integer> frontSearchResult = FrontSearcher.frontSearch( inputFilePath );
+        encode(
+                inputFilePath,
+                outputFilePath,
+                null
+        );
+    }
+
+    public static void encode(
+            @NotNull String inputFilePath,
+            @Nullable String outputFilePath,
+            @Nullable String fileNameFilterRegexString
+    ) {
+        Map<String, FrontSearchResultPojo> frontSearchResult = FrontSearcher.frontSearch(
+                inputFilePath,
+                fileNameFilterRegexString
+        );
         Map<String, File> tempDuplicatedFiles = new HashMap<>((frontSearchResult.size() * 4 + 2) / 3);
         try (
                 InputStream inputStream = Files.newInputStream( Paths.get( inputFilePath ) );
@@ -87,28 +104,6 @@ public class Encoder {
         }
     }
 
-    @Deprecated
-    @SuppressWarnings("RedundantArrayCreation")
-    private static final List<Pattern> FILTER_FILE_PATTERN = Arrays.asList( new Pattern[]{
-            //backend
-            Pattern.compile( "^.*\\.jar$" ), Pattern.compile( "^.*\\.py$" ),
-            //frontend
-            Pattern.compile( "^.*\\.html$" ), Pattern.compile( "^.*\\.css$" ), Pattern.compile( "^.*\\.js$" ), Pattern.compile( "^.*\\.ts$" ),
-            //config
-            Pattern.compile( "^.*\\.conf$" ), Pattern.compile( "^.*\\.ini$" ),
-            //zip
-            Pattern.compile( "^.*\\.zip$" ), Pattern.compile( "^.*\\.gz$" ), Pattern.compile( "^.*\\.bz$" ), Pattern.compile( "^.*\\.bz2$" ),
-            //text
-            Pattern.compile( "^.*\\.md$" ), Pattern.compile( "^.*\\.txt$" ),
-            //data
-            Pattern.compile( "^.*\\.json$" ), Pattern.compile( "^.*\\.dtd$" ), Pattern.compile( "^.*\\.xml$" ), Pattern.compile( "^.*\\.properties$" ), Pattern.compile( "^.*\\.dat$" ), Pattern.compile( "^.*\\.data$" ),
-            //image
-            Pattern.compile( "^.*\\.ttf$" ), Pattern.compile( "^.*\\.jpg$" ), Pattern.compile( "^.*\\.bpm$" ),
-            //doc
-            Pattern.compile( "^.*\\.doc$" ), Pattern.compile( "^.*\\.pdf$" ),
-            //license
-            Pattern.compile( "^VERSION$" ), Pattern.compile( "^LICENSE$" ), Pattern.compile( "^ASSEMBLY_EXCEPTION$" ), Pattern.compile( "^ADDITIONAL_LICENSE_INFO$" )} );
-
     static void handleTarFile(
             @NotNull String rootInputFilePath,
             @Nullable String rootOutputFilePath,
@@ -117,7 +112,7 @@ public class Encoder {
             @Nullable TarArchiveEntry outerInputTarArchiveEntry,
             @Nullable TarArchiveOutputStream outerTarArchiveOutputStream,
             @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult,
+            @NotNull Map<String, FrontSearchResultPojo> frontSearchResult,
             @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         if (outerInputTarArchiveEntry != null) {
@@ -272,7 +267,7 @@ public class Encoder {
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull TarArchiveOutputStream tarArchiveOutputStream,
             @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
-            @NotNull Map<String, Integer> frontSearchResult,
+            @NotNull Map<String, FrontSearchResultPojo> frontSearchResult,
             @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         System.out.println( "normal file : " + inputTarArchiveEntry.getName() );

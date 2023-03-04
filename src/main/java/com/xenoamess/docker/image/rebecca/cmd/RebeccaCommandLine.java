@@ -15,14 +15,22 @@ public class RebeccaCommandLine {
         switch (args[0]) {
             case "encode":
             case "-encode":
-                if (args.length >= 3) {
+                if (args.length >= 4) {
                     encode(
                             args[1],
-                            args[2]
+                            args[2],
+                            args[3]
+                    );
+                } else if (args.length >= 3) {
+                    encode(
+                            args[1],
+                            args[2],
+                            null
                     );
                 } else {
                     encode(
                             args[1],
+                            null,
                             null
                     );
                 }
@@ -65,11 +73,13 @@ public class RebeccaCommandLine {
 
     public static void encode(
             @NotNull String inputFilePath,
-            @Nullable String outputFilePath
+            @Nullable String outputFilePath,
+            @Nullable String fileNameFilterRegexString
     ) {
         Encoder.encode(
                 inputFilePath,
-                outputFilePath
+                outputFilePath,
+                fileNameFilterRegexString
         );
     }
 
