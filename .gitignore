@@ -41,3 +41,4 @@ pom.xml.versionsBackup
 
 test_data/
 *.rebecca
+*.tar
