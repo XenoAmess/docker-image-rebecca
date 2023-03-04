@@ -15,12 +15,14 @@ import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 import com.xenoamess.docker.image.rebecca.pojo.FrontHashFilesPreparePojo;
 import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +40,20 @@ public class Decoder {
     ) {
         Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult = FrontHashFilesPreparer.frontHashFilesPrepare(inputFilePath);
         try (
-                InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
+                TarFile outerTarFile = new TarFile(Paths.get(inputFilePath));
+                InputStream inputStream = outerTarFile.getInputStream(
+                        outerTarFile.getEntries().stream().filter(
+                                new Predicate<TarArchiveEntry>() {
+                                    @Override
+                                    public boolean test(TarArchiveEntry tarArchiveEntry) {
+                                        return "origin.tar".equals(tarArchiveEntry.getName());
+                                    }
+                                }
+                        ).findFirst().orElseThrow(
+                                () -> new IllegalArgumentException("have no origin.tar file, cannot decode")
+                        )
+                );
+                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(inputStream)
         ) {
             String outputFileRebecca;
             if (outputFilePath != null) {
@@ -48,21 +61,21 @@ public class Decoder {
             } else {
                 outputFileRebecca = inputFilePath + ".out.tar";
             }
-            try (
-                    OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
-                    TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
-            ) {
-                Decoder.handleTarFile(
-                        inputFilePath,
-                        null,
-                        false,
-                        tarArchiveInputStream,
-                        null,
-                        tarArchiveOutputStream,
-                        frontHashFilesPrepareResult
-                );
-            }
+//            try (
+//                    OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
+//                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+//                    TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
+//            ) {
+            Decoder.handleTarFile(
+                    inputFilePath,
+                    outputFileRebecca,
+                    true,
+                    tarArchiveInputStream,
+                    null,
+                    null,
+                    frontHashFilesPrepareResult
+            );
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }

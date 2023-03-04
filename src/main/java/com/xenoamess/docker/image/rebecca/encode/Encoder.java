@@ -229,7 +229,7 @@ public class Encoder {
 //                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
                     outputTarArchiveEntry.setModTime(FileTime.fromMillis(0));
 //                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
-//                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
+                    outputTarArchiveEntry.setUserId(0);
 //                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
                 }
 
@@ -335,10 +335,20 @@ public class Encoder {
             tempDuplicatedFiles.put(readAndHashResultPojo.getHash(), file);
             TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
             fileTarArchiveEntry.setSize(readAndHashResultPojo.getData().length);
+            fileTarArchiveEntry.setCreationTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
+//                    outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
+//                    outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
+            fileTarArchiveEntry.setLastAccessTime(FileTime.fromMillis(0));
+            fileTarArchiveEntry.setLastModifiedTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
+//                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
+            fileTarArchiveEntry.setModTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+            fileTarArchiveEntry.setUserId(0);
+//                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
             rootOuterTarArchiveOutputStream.putArchiveEntry(fileTarArchiveEntry);
-            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
-                IOUtils.copy(byteArrayInputStream, rootOuterTarArchiveOutputStream);
-            }
+            rootOuterTarArchiveOutputStream.write(readAndHashResultPojo.getData());
             fileTarArchiveEntry.setSize(rootOuterTarArchiveOutputStream.getBytesWritten());
             rootOuterTarArchiveOutputStream.closeArchiveEntry();
             return true;
