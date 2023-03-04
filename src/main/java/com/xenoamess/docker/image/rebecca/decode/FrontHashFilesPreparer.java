@@ -27,7 +27,7 @@ public class FrontHashFilesPreparer {
         try (
                 InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream);
+                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
         ) {
             handleTarFile(
                     tarArchiveInputStream,
@@ -75,7 +75,7 @@ public class FrontHashFilesPreparer {
             tempFile.deleteOnExit();
             try (
                     FileOutputStream outputStream = new FileOutputStream(tempFile);
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream)
             ) {
                 IOUtils.copy(
                         outerTarArchiveInputStream,

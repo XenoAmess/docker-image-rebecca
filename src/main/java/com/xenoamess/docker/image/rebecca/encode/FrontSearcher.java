@@ -29,7 +29,7 @@ public class FrontSearcher {
         try (
                 InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
                 BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream);
+                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
         ) {
             handleTarFile(
                     inputFilePath,

@@ -353,15 +353,10 @@ public class Encoder {
             rootOuterTarArchiveOutputStream.closeArchiveEntry();
             return true;
         } else {
-            if (
-                    Arrays.equals(
-                            FileUtils.readFileToByteArray(file),
-                            readAndHashResultPojo.getData()
-                    )
-            ) {
-                return true;
-            }
-            return false;
+            return Arrays.equals(
+                    FileUtils.readFileToByteArray(file),
+                    readAndHashResultPojo.getData()
+            );
         }
     }
 

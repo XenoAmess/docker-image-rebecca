@@ -20,7 +20,7 @@ public class ReadAndHashUtil {
             @NotNull InputStream inputStream
     ) {
         try (
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()
         ) {
             IOUtils.copy(
                     inputStream,
