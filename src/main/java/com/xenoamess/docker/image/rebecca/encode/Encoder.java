@@ -14,10 +14,8 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import com.xenoamess.docker.image.rebecca.pojo.FrontSearchResultPojo;
 import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
