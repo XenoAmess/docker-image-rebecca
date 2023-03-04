@@ -7,8 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -24,16 +26,44 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FirstStepEncoder {
+public class Encoder {
 
-    public static void encodeFirstStep(@NotNull String inputFilePath) {
-        encodeFirstStep(inputFilePath, null);
+    public static void encode(@NotNull String inputFilePath) {
+        encode(inputFilePath, null);
     }
 
-    public static void encodeFirstStep(@NotNull String inputFilePath, @Nullable String outputFilePath) {
+    public static void encode(
+            @NotNull String inputFilePath,
+            @Nullable String outputFilePath
+    ) {
         Map<String, Integer> frontSearchResult = FrontSearcher.frontSearch(inputFilePath);
-        try (InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath)); BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream); TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream);) {
-            FirstStepEncoder.handleTarFile(inputFilePath, outputFilePath, true, tarArchiveInputStream, null, null, frontSearchResult);
+        try (
+                InputStream inputStream = Files.newInputStream(Paths.get(inputFilePath));
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
+                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream)
+        ) {
+            String outputFileRebecca;
+            if (outputFilePath != null) {
+                outputFileRebecca = outputFilePath;
+            } else {
+                outputFileRebecca = inputFilePath + ".rebecca";
+            }
+            try (
+                    OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
+                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+                    TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
+            ) {
+                Encoder.handleTarFile(
+                        inputFilePath,
+                        null,
+                        false,
+                        tarArchiveInputStream,
+                        null,
+                        tarArchiveOutputStream,
+                        tarArchiveOutputStream,
+                        frontSearchResult
+                );
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,7 +91,16 @@ public class FirstStepEncoder {
             //license
             Pattern.compile("^VERSION$"), Pattern.compile("^LICENSE$"), Pattern.compile("^ASSEMBLY_EXCEPTION$"), Pattern.compile("^ADDITIONAL_LICENSE_INFO$"),});
 
-    static void handleTarFile(@NotNull String rootInputFilePath, @Nullable String rootOutputFilePath, boolean isRoot, @NotNull TarArchiveInputStream outerTarArchiveInputStream, @Nullable TarArchiveEntry outerInputTarArchiveEntry, @Nullable TarArchiveOutputStream outerTarArchiveOutputStream, @NotNull Map<String, Integer> frontSearchResult) {
+    static void handleTarFile(
+            @NotNull String rootInputFilePath,
+            @Nullable String rootOutputFilePath,
+            boolean isRoot,
+            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
+            @Nullable TarArchiveEntry outerInputTarArchiveEntry,
+            @Nullable TarArchiveOutputStream outerTarArchiveOutputStream,
+            @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
+            @NotNull Map<String, Integer> frontSearchResult
+    ) {
         if (outerInputTarArchiveEntry != null) {
             System.out.println("tar file handling started : " + outerInputTarArchiveEntry.getName());
         }
@@ -85,8 +124,12 @@ public class FirstStepEncoder {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca)); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream); TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream);) {
-            if (outerInputTarArchiveEntry != null) {
+        try (
+                OutputStream outputStream = Files.newOutputStream(Paths.get(outputFileRebecca));
+                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
+                TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
+        ) {
+            if (!isRoot) {
                 Paths.get(outputFileRebecca).toFile().deleteOnExit();
             }
             while (true) {
@@ -100,7 +143,16 @@ public class FirstStepEncoder {
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(outerTarArchiveInputStream);
                     TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream);
                     try {
-                        handleTarFile(rootInputFilePath, rootOutputFilePath, false, tarArchiveInputStream, inputTarArchiveEntry, tarArchiveOutputStream, frontSearchResult);
+                        handleTarFile(
+                                rootInputFilePath,
+                                rootOutputFilePath,
+                                false,
+                                tarArchiveInputStream,
+                                inputTarArchiveEntry,
+                                tarArchiveOutputStream,
+                                rootOuterTarArchiveOutputStream,
+                                frontSearchResult
+                        );
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -121,7 +173,13 @@ public class FirstStepEncoder {
 //                    );
 //                    continue;
 //                }
-                handleNormalFile(outerTarArchiveInputStream, inputTarArchiveEntry, tarArchiveOutputStream, frontSearchResult);
+                handleNormalFile(
+                        outerTarArchiveInputStream,
+                        inputTarArchiveEntry,
+                        tarArchiveOutputStream,
+                        rootOuterTarArchiveOutputStream,
+                        frontSearchResult
+                );
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -129,23 +187,42 @@ public class FirstStepEncoder {
         if (outerTarArchiveOutputStream != null) {
             TarArchiveEntry outputTarArchiveEntry = null;
             try {
-                outputTarArchiveEntry = new TarArchiveEntry(Paths.get(outputFileRebecca));
-                outputTarArchiveEntry.setName(outerInputTarArchiveEntry.getName());
-                outputTarArchiveEntry.setCreationTime(outerInputTarArchiveEntry.getCreationTime());
-                outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
-                outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
-                outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
-                outputTarArchiveEntry.setLastAccessTime(outerInputTarArchiveEntry.getLastAccessTime());
-                outputTarArchiveEntry.setLastModifiedTime(outerInputTarArchiveEntry.getLastModifiedTime());
-                outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
-                outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
-                outputTarArchiveEntry.setModTime(outerInputTarArchiveEntry.getModTime());
-                outputTarArchiveEntry.setSize(outerInputTarArchiveEntry.getSize());
-                outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
-                outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
-                outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
+                if (outerInputTarArchiveEntry != null) {
+                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get(outputFileRebecca));
+                    outputTarArchiveEntry.setName(outerInputTarArchiveEntry.getName());
+                    outputTarArchiveEntry.setCreationTime(outerInputTarArchiveEntry.getCreationTime());
+                    outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
+                    outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
+                    outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
+                    outputTarArchiveEntry.setLastAccessTime(outerInputTarArchiveEntry.getLastAccessTime());
+                    outputTarArchiveEntry.setLastModifiedTime(outerInputTarArchiveEntry.getLastModifiedTime());
+                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
+                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
+                    outputTarArchiveEntry.setModTime(outerInputTarArchiveEntry.getModTime());
+                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
+                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
+                } else {
+                    outputTarArchiveEntry = new TarArchiveEntry(Paths.get(outputFileRebecca));
+                    outputTarArchiveEntry.setName("origin.tar");
+                    outputTarArchiveEntry.setCreationTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setDevMajor(outerInputTarArchiveEntry.getDevMajor());
+//                    outputTarArchiveEntry.setDevMinor(outerInputTarArchiveEntry.getDevMinor());
+//                    outputTarArchiveEntry.setGroupId(outerInputTarArchiveEntry.getLongGroupId());
+                    outputTarArchiveEntry.setLastAccessTime(FileTime.fromMillis(0));
+                    outputTarArchiveEntry.setLastModifiedTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
+//                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
+                    outputTarArchiveEntry.setModTime(FileTime.fromMillis(0));
+//                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+//                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
+//                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
+                }
+
+
                 outerTarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
                 IOUtils.copy(Files.newInputStream(Paths.get(outputFileRebecca)), outerTarArchiveOutputStream);
+                outputTarArchiveEntry.setSize(outerTarArchiveOutputStream.getBytesWritten());
                 outerTarArchiveOutputStream.closeArchiveEntry();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -173,6 +250,7 @@ public class FirstStepEncoder {
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @NotNull TarArchiveEntry inputTarArchiveEntry,
             @NotNull TarArchiveOutputStream tarArchiveOutputStream,
+            @NotNull TarArchiveOutputStream rootOuterTarArchiveOutputStream,
             @NotNull Map<String, Integer> frontSearchResult
     ) {
         System.out.println("normal file : " + inputTarArchiveEntry.getName());
@@ -195,19 +273,35 @@ public class FirstStepEncoder {
             ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
                     outerTarArchiveInputStream
             );
-            if (readAndHashResultPojo.getData().length < 1024) {
-                // too small file have no compress value
-                return;
-            }
             final String hash = readAndHashResultPojo.getHash();
             if (!frontSearchResult.containsKey(hash)) {
                 tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
                 try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
                     IOUtils.copy(byteArrayInputStream, tarArchiveOutputStream);
                 }
+                outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
                 tarArchiveOutputStream.closeArchiveEntry();
             } else {
                 outputTarArchiveEntry.setName(outputTarArchiveEntry.getName() + ".rebecca_pie");
+                byte[] hashStringBytes = readAndHashResultPojo.getHash().getBytes(StandardCharsets.UTF_8);
+                outputTarArchiveEntry.setSize(hashStringBytes.length);
+                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
+                tarArchiveOutputStream.write(
+                        hashStringBytes
+                );
+                outputTarArchiveEntry.setSize(tarArchiveOutputStream.getBytesWritten());
+                tarArchiveOutputStream.closeArchiveEntry();
+                {
+                    TarArchiveEntry fileTarArchiveEntry = new TarArchiveEntry("hash_files/" + readAndHashResultPojo.getHash());
+                    fileTarArchiveEntry.setSize(readAndHashResultPojo.getData().length);
+                    rootOuterTarArchiveOutputStream.putArchiveEntry(fileTarArchiveEntry);
+                    try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
+                        IOUtils.copy(byteArrayInputStream, rootOuterTarArchiveOutputStream);
+                    }
+                    fileTarArchiveEntry.setSize(rootOuterTarArchiveOutputStream.getBytesWritten());
+                    rootOuterTarArchiveOutputStream.closeArchiveEntry();
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

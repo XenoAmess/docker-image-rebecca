@@ -162,7 +162,7 @@ public class FrontSearcher {
             ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
                     outerTarArchiveInputStream
             );
-            if (readAndHashResultPojo.getData().length < 1024) {
+            if (readAndHashResultPojo.getData().length < 1024 * 4) {
                 // too small file have no compress value
                 return;
             }
