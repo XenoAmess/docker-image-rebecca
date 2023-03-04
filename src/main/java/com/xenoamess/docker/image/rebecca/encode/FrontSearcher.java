@@ -1,14 +1,9 @@
 package com.xenoamess.docker.image.rebecca.encode;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,9 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
+import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -138,8 +134,6 @@ public class FrontSearcher {
         }
     }
 
-    private static final byte[] READ_CACHE = new byte[8192];
-
     private static void handleNormalFile(
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @NotNull TarArchiveEntry inputTarArchiveEntry,
@@ -165,42 +159,24 @@ public class FrontSearcher {
             outputTarArchiveEntry.setUserId(inputTarArchiveEntry.getLongUserId());
             outputTarArchiveEntry.setUserName(inputTarArchiveEntry.getUserName());
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            IOUtils.copy(
-                    outerTarArchiveInputStream,
-                    byteArrayOutputStream
+            ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
+                    outerTarArchiveInputStream
             );
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
-            long fileSize = 0;
-            try (
-                    InputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-                    DigestInputStream dis = new DigestInputStream(inputStream, messageDigest)
-            ) {
-                while (true) {
-                    int readLength = dis.read(READ_CACHE);
-                    if (readLength == -1) {
-                        break;
-                    }
-                    fileSize += readLength;
-                }
-                /* Read decorated stream (dis) to EOF as normal... */
-            }
-            if (fileSize < 1024) {
+            if (readAndHashResultPojo.getData().length < 1024) {
                 // too small file have no compress value
                 return;
             }
-            byte[] digest = messageDigest.digest();
-            String hash = new String(Base64.getUrlEncoder().encode(digest));
-            String key = hash + "|" + inputTarArchiveEntry.getName();
-            AtomicInteger count = hashToCountPre.get(key);
+            final String hash = readAndHashResultPojo.getHash();
+            AtomicInteger count = hashToCountPre.get(hash);
             if (count == null) {
-                hashToCountPre.put(key, new AtomicInteger(1));
+                hashToCountPre.put(hash, new AtomicInteger(1));
             } else {
                 count.incrementAndGet();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
 }

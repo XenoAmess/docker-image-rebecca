@@ -2,6 +2,7 @@ package com.xenoamess.docker.image.rebecca.encode;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.xenoamess.docker.image.rebecca.pojo.ReadAndHashResultPojo;
+import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -166,7 +169,12 @@ public class FirstStepEncoder {
 //        );
 //    }
 
-    private static void handleNormalFile(@NotNull TarArchiveInputStream outerTarArchiveInputStream, @NotNull TarArchiveEntry inputTarArchiveEntry, @NotNull TarArchiveOutputStream tarArchiveOutputStream, @NotNull Map<String, Integer> frontSearchResult) {
+    private static void handleNormalFile(
+            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
+            @NotNull TarArchiveEntry inputTarArchiveEntry,
+            @NotNull TarArchiveOutputStream tarArchiveOutputStream,
+            @NotNull Map<String, Integer> frontSearchResult
+    ) {
         System.out.println("normal file : " + inputTarArchiveEntry.getName());
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
         try {
@@ -184,9 +192,23 @@ public class FirstStepEncoder {
             outputTarArchiveEntry.setStatusChangeTime(inputTarArchiveEntry.getStatusChangeTime());
             outputTarArchiveEntry.setUserId(inputTarArchiveEntry.getLongUserId());
             outputTarArchiveEntry.setUserName(inputTarArchiveEntry.getUserName());
-            tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-            IOUtils.copy(outerTarArchiveInputStream, tarArchiveOutputStream);
-            tarArchiveOutputStream.closeArchiveEntry();
+            ReadAndHashResultPojo readAndHashResultPojo = ReadAndHashUtil.readAndHash(
+                    outerTarArchiveInputStream
+            );
+            if (readAndHashResultPojo.getData().length < 1024) {
+                // too small file have no compress value
+                return;
+            }
+            final String hash = readAndHashResultPojo.getHash();
+            if (!frontSearchResult.containsKey(hash)) {
+                tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
+                try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(readAndHashResultPojo.getData())) {
+                    IOUtils.copy(byteArrayInputStream, tarArchiveOutputStream);
+                }
+                tarArchiveOutputStream.closeArchiveEntry();
+            } else {
+                outputTarArchiveEntry.setName(outputTarArchiveEntry.getName() + ".rebecca_pie");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
