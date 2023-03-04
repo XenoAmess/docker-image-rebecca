@@ -265,15 +265,15 @@ public class Decoder {
                 if (frontHashFilesPreparePojo == null) {
                     outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
                     tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
-                    tarArchiveOutputStream.write(hashBytes);
+                    tarArchiveOutputStream.write( hashBytes );
                     outputTarArchiveEntry.setSize( tarArchiveOutputStream.getBytesWritten() );
                     tarArchiveOutputStream.closeArchiveEntry();
                 } else {
                     File file = frontHashFilesPreparePojo.getTempHashFile();
-                    byte[] bytes = FileUtils.readFileToByteArray(file);
-                    outputTarArchiveEntry.setSize(bytes.length);
-                    tarArchiveOutputStream.putArchiveEntry(outputTarArchiveEntry);
-                    tarArchiveOutputStream.write(bytes);
+                    byte[] bytes = FileUtils.readFileToByteArray( file );
+                    outputTarArchiveEntry.setSize( bytes.length );
+                    tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+                    tarArchiveOutputStream.write( bytes );
                     tarArchiveOutputStream.closeArchiveEntry();
                 }
             } else {
