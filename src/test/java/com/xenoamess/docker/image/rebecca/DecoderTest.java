@@ -1,10 +1,8 @@
 package com.xenoamess.docker.image.rebecca;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 
 import com.xenoamess.docker.image.rebecca.decode.Decoder;
-import com.xenoamess.docker.image.rebecca.encode.Encoder;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
