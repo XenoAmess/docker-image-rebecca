@@ -12,7 +12,7 @@ public class EncoderTest {
 
     @Test
     public void test() throws Exception {
-        if(!SystemUtils.IS_OS_WINDOWS){
+        if (!SystemUtils.IS_OS_WINDOWS) {
             return;
         }
         Encoder.encode(

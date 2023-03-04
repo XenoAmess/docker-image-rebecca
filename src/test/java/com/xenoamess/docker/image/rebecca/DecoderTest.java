@@ -12,7 +12,7 @@ public class DecoderTest {
 
     @Test
     public void test() throws Exception {
-        if(!SystemUtils.IS_OS_WINDOWS){
+        if (!SystemUtils.IS_OS_WINDOWS) {
             return;
         }
         Decoder.decode(
