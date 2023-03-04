@@ -6,7 +6,7 @@
 
     <groupId>com.xenoamess</groupId>
     <artifactId>docker-image-rebecca</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
 
     <description>X8l format is a type of data format,
         it is designed to be a replacement of xml/json in most cases when you need the
