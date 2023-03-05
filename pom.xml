@@ -6,7 +6,7 @@
 
     <groupId>com.xenoamess</groupId>
     <artifactId>docker-image-rebecca</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>A project to make docker saved image size smaller.</description>
