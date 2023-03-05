@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import com.xenoamess.docker.image.rebecca.pojo.FrontSearchResultPojo;
@@ -24,7 +24,7 @@ public class FrontSearcher {
     @NotNull
     public static Map<String, FrontSearchResultPojo> frontSearch(
             @NotNull String inputFilePath,
-            @Nullable Function<Map.Entry<String, FrontSearchResultPojo>, Boolean> filter
+            @Nullable Predicate<Map.Entry<@Nullable String, @NotNull FrontSearchResultPojo>> filter
     ) {
         final Map<String, FrontSearchResultPojo> hashToCountPre = new HashMap<>();
         try (
@@ -36,7 +36,8 @@ public class FrontSearcher {
                     inputFilePath,
                     tarArchiveInputStream,
                     null,
-                    hashToCountPre
+                    hashToCountPre,
+                    filter
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -45,12 +46,10 @@ public class FrontSearcher {
         for (Map.Entry<String, FrontSearchResultPojo> entry : hashToCountPre.entrySet()) {
             if (filter != null) {
                 if (
-                        !Boolean.TRUE.equals(
-                                filter.apply(
-                                        Pair.of(
-                                                entry.getKey(),
-                                                entry.getValue()
-                                        )
+                        !filter.test(
+                                Pair.of(
+                                        entry.getKey(),
+                                        entry.getValue()
                                 )
                         )
                 ) {
@@ -80,29 +79,33 @@ public class FrontSearcher {
             @NotNull String inputFilePath,
             @Nullable String fileNameFilterRegexString
     ) {
-        final Pattern fileNameFilterRegexPattern = fileNameFilterRegexString != null ? Pattern.compile( fileNameFilterRegexString ) : null;
         return frontSearch(
                 inputFilePath,
-                entry -> {
-                    if (entry.getValue().getCount() <= 1) {
-                        // no need to rebecca if only 1
-                        return false;
-                    }
-                    for (long fileSize : entry.getValue().getFileSizes()) {
-                        if (fileSize < 1024 * 4) {
-                            // too small file have no compress value
+                new Predicate<Map.Entry<@Nullable String, @NotNull FrontSearchResultPojo>>() {
+                    final @Nullable Pattern fileNameFilterRegexPattern = fileNameFilterRegexString != null ? Pattern.compile( fileNameFilterRegexString ) : null;
+
+                    @Override
+                    public boolean test(Map.Entry<String, FrontSearchResultPojo> entry) {
+                        if (entry.getValue().getCount() <= 1) {
+                            // no need to rebecca if only 1
                             return false;
                         }
-                    }
-                    if (fileNameFilterRegexPattern != null) {
-                        for (String fileName : entry.getValue().getFileNames()) {
-                            if (!fileNameFilterRegexPattern.matcher( fileName ).matches()) {
-                                // any file name not match fileNameFilterRegexPattern, if here be
+                        for (long fileSize : entry.getValue().getFileSizes()) {
+                            if (fileSize < 1024 * 4) {
+                                // too small file have no compress value
                                 return false;
                             }
                         }
+                        if (fileNameFilterRegexPattern != null) {
+                            for (String fileName : entry.getValue().getFileNames()) {
+                                if (!fileNameFilterRegexPattern.matcher( fileName ).matches()) {
+                                    // any file name not match fileNameFilterRegexPattern, if here be
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
                     }
-                    return true;
                 }
         );
     }
@@ -111,7 +114,8 @@ public class FrontSearcher {
             @NotNull String rootInputTarFileName,
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @Nullable TarArchiveEntry outerInputTarArchiveEntry,
-            @NotNull Map<String, FrontSearchResultPojo> hashToCountPre
+            @NotNull Map<String, FrontSearchResultPojo> hashToCountPre,
+            @Nullable Predicate<Map.Entry<@Nullable String, @NotNull FrontSearchResultPojo>> filter
     ) {
         if (outerInputTarArchiveEntry != null) {
             System.out.println( "tar file handling started : " + outerInputTarArchiveEntry.getName() );
@@ -142,7 +146,8 @@ public class FrontSearcher {
                                 rootInputTarFileName,
                                 tarArchiveInputStream,
                                 inputTarArchiveEntry,
-                                hashToCountPre
+                                hashToCountPre,
+                                filter
                         );
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -152,7 +157,8 @@ public class FrontSearcher {
                 handleNormalFile(
                         outerTarArchiveInputStream,
                         inputTarArchiveEntry,
-                        hashToCountPre
+                        hashToCountPre,
+                        filter
                 );
             }
         } catch (Exception e) {
@@ -166,14 +172,32 @@ public class FrontSearcher {
     private static void handleNormalFile(
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @NotNull TarArchiveEntry inputTarArchiveEntry,
-            @NotNull Map<String, FrontSearchResultPojo> hashToCountPre
+            @NotNull Map<String, FrontSearchResultPojo> hashToCountPre,
+            @Nullable Predicate<Map.Entry<@Nullable String, @NotNull FrontSearchResultPojo>> filter
     ) {
-        System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
+        final String inputFileName = inputTarArchiveEntry.getName();
+        final long inputFileSize = inputTarArchiveEntry.getRealSize();
+        System.out.println( "normal file : " + inputFileName );
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
-                inputTarArchiveEntry.getName()
+                inputFileName
         );
+        if (filter != null) {
+            FrontSearchResultPojo frontSearchResultPojo = new FrontSearchResultPojo();
+            frontSearchResultPojo.setCount( Integer.MAX_VALUE );
+            frontSearchResultPojo.getFileNames().add( inputFileName );
+            frontSearchResultPojo.getFileSizes().add( inputFileSize );
+            if (!filter.test( Pair.of( null, frontSearchResultPojo ) )) {
+                System.out.println( "no match, continue file : " + inputFileName );
+                try {
+                    outerTarArchiveInputStream.getNextTarEntry();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+        }
         try {
-            outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+            outputTarArchiveEntry.setName( inputFileName );
             outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
             outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
             outputTarArchiveEntry.setDevMinor( inputTarArchiveEntry.getDevMinor() );
@@ -200,7 +224,7 @@ public class FrontSearcher {
             } else {
                 frontSearchResultPojo.setCount( frontSearchResultPojo.getCount() + 1 );
             }
-            frontSearchResultPojo.getFileNames().add( inputTarArchiveEntry.getName() );
+            frontSearchResultPojo.getFileNames().add( inputFileName );
             frontSearchResultPojo.getFileSizes().add( (long) readAndHashResultPojo.getData().length );
         } catch (Exception e) {
             e.printStackTrace();
