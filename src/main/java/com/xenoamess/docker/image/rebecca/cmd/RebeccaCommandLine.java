@@ -15,6 +15,7 @@ public class RebeccaCommandLine {
         switch (args[0]) {
             case "encode":
             case "-encode":
+            case "--encode":
                 if (args.length >= 4) {
                     encode(
                             args[1],
@@ -37,6 +38,7 @@ public class RebeccaCommandLine {
                 break;
             case "decode":
             case "-decode":
+            case "--decode":
                 if (args.length >= 3) {
                     decode(
                             args[1],
@@ -76,6 +78,9 @@ public class RebeccaCommandLine {
             @Nullable String outputFilePath,
             @Nullable String fileNameFilterRegexString
     ) {
+        System.out.println( "inputFilePath : " + inputFilePath );
+        System.out.println( "outputFilePath : " + outputFilePath );
+        System.out.println( "fileNameFilterRegexString : " + fileNameFilterRegexString );
         Encoder.encode(
                 inputFilePath,
                 outputFilePath,
@@ -87,6 +92,8 @@ public class RebeccaCommandLine {
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
+        System.out.println( "inputFilePath : " + inputFilePath );
+        System.out.println( "outputFilePath : " + outputFilePath );
         Decoder.decode(
                 inputFilePath,
                 outputFilePath
