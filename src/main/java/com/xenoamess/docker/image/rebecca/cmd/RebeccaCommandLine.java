@@ -78,9 +78,9 @@ public class RebeccaCommandLine {
             @Nullable String outputFilePath,
             @Nullable String fileNameFilterRegexString
     ) {
-        System.out.println("inputFilePath : " + inputFilePath);
-        System.out.println("outputFilePath : " + outputFilePath);
-        System.out.println("fileNameFilterRegexString : " + fileNameFilterRegexString);
+        System.out.println( "inputFilePath : " + inputFilePath );
+        System.out.println( "outputFilePath : " + outputFilePath );
+        System.out.println( "fileNameFilterRegexString : " + fileNameFilterRegexString );
         Encoder.encode(
                 inputFilePath,
                 outputFilePath,
@@ -92,8 +92,8 @@ public class RebeccaCommandLine {
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
-        System.out.println("inputFilePath : " + inputFilePath);
-        System.out.println("outputFilePath : " + outputFilePath);
+        System.out.println( "inputFilePath : " + inputFilePath );
+        System.out.println( "outputFilePath : " + outputFilePath );
         Decoder.decode(
                 inputFilePath,
                 outputFilePath

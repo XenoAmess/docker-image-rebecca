@@ -71,17 +71,23 @@ public class Encoder {
             }
             Path outPath = Paths.get( outputFileRebecca );
             try {
-                outPath.toFile().getParentFile().getAbsoluteFile().mkdirs();
-            } catch (Exception e) {
-                e.printStackTrace();
+                File outputFile = outPath.toFile();
+                File parentFile = outputFile.getParentFile();
+                if(parentFile != null){
+                    parentFile = parentFile.getAbsoluteFile();
+                    if(parentFile != null){
+                        parentFile.mkdirs();
+                    }
+                }
+            } catch (Exception ignored) {
             }
             try (
                     OutputStream outputStream = Files.newOutputStream( outPath );
                     BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                     TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
             ) {
-                tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-                tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+                tarArchiveOutputStream.setBigNumberMode( TarArchiveOutputStream.BIGNUMBER_POSIX );
+                tarArchiveOutputStream.setLongFileMode( TarArchiveOutputStream.LONGFILE_POSIX );
                 Encoder.handleTarFile(
                         inputFilePath,
                         null,
@@ -134,19 +140,24 @@ public class Encoder {
             outputFileRebecca = outputFileOri + ".rebecca";
         }
 
-        File outputFile = Paths.get( outputFileRebecca ).toFile();
         try {
-            outputFile.getParentFile().getAbsoluteFile().mkdirs();
-        } catch (Exception e) {
-            e.printStackTrace();
+            File outputFile = Paths.get( outputFileRebecca ).toFile();
+            File parentFile = outputFile.getParentFile();
+            if(parentFile != null){
+                parentFile = parentFile.getAbsoluteFile();
+                if(parentFile != null){
+                    parentFile.mkdirs();
+                }
+            }
+        } catch (Exception ignored) {
         }
         try (
                 OutputStream outputStream = Files.newOutputStream( Paths.get( outputFileRebecca ) );
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                 TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
         ) {
-            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+            tarArchiveOutputStream.setBigNumberMode( TarArchiveOutputStream.BIGNUMBER_POSIX );
+            tarArchiveOutputStream.setLongFileMode( TarArchiveOutputStream.LONGFILE_POSIX );
             if (!isRoot) {
                 Paths.get( outputFileRebecca ).toFile().deleteOnExit();
             }
