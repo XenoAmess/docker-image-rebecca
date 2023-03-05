@@ -125,6 +125,8 @@ public class Decoder {
                 BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);
                 TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(bufferedOutputStream)
         ) {
+            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             if (!isRoot) {
                 Paths.get( outputFileRebecca ).toFile().deleteOnExit();
             }
