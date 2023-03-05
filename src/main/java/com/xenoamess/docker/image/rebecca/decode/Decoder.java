@@ -117,9 +117,9 @@ public class Decoder {
         try {
             File outputFile = Paths.get( outputFileRebecca ).toFile();
             File parentFile = outputFile.getParentFile();
-            if(parentFile != null){
+            if (parentFile != null) {
                 parentFile = parentFile.getAbsoluteFile();
-                if(parentFile != null){
+                if (parentFile != null) {
                     parentFile.mkdirs();
                 }
             }

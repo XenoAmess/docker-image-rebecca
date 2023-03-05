@@ -73,9 +73,9 @@ public class Encoder {
             try {
                 File outputFile = outPath.toFile();
                 File parentFile = outputFile.getParentFile();
-                if(parentFile != null){
+                if (parentFile != null) {
                     parentFile = parentFile.getAbsoluteFile();
-                    if(parentFile != null){
+                    if (parentFile != null) {
                         parentFile.mkdirs();
                     }
                 }
@@ -143,9 +143,9 @@ public class Encoder {
         try {
             File outputFile = Paths.get( outputFileRebecca ).toFile();
             File parentFile = outputFile.getParentFile();
-            if(parentFile != null){
+            if (parentFile != null) {
                 parentFile = parentFile.getAbsoluteFile();
-                if(parentFile != null){
+                if (parentFile != null) {
                     parentFile.mkdirs();
                 }
             }
