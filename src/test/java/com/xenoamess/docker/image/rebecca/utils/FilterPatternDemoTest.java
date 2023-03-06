@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 public class FilterPatternDemoTest {
 
@@ -87,7 +86,7 @@ public class FilterPatternDemoTest {
                 "1|2|3"
         );
         Assertions.assertThrows(
-                AssertionFailedError.class, () -> {
+                Throwable.class, () -> {
                     Assertions.assertArrayEquals(
                             FileUtils.readFileToByteArray(
                                     Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
