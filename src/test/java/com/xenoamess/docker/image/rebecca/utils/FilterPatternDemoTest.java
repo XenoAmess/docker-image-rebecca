@@ -1,17 +1,13 @@
 package com.xenoamess.docker.image.rebecca.utils;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.xenoamess.docker.image.rebecca.encode.Encoder;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 public class FilterPatternDemoTest {
 
@@ -56,7 +52,6 @@ public class FilterPatternDemoTest {
             "^ADDITIONAL_LICENSE_INFO$"
     );
 
-    @Disabled
     @Test
     public void testOnLocal() throws Exception {
         List<String> list = new ArrayList<>(SUB_PATTERN_STRINGS);
@@ -72,13 +67,9 @@ public class FilterPatternDemoTest {
                 "target/out/1_out.tar",
                 goodRegex
         );
-        Assertions.assertArrayEquals(
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                ),
-                FileUtils.readFileToByteArray(
-                        Paths.get( "target/out/1_out.tar" ).toFile()
-                )
+        TarCompareUtil.assertTarEquals(
+                        "src/test/resources/decode1.tar.rebecca",
+      "target/out/1_out.tar"
         );
 
         Encoder.encode(
@@ -87,14 +78,10 @@ public class FilterPatternDemoTest {
                 "1|2|3"
         );
         Assertions.assertThrows(
-                AssertionFailedError.class, () -> {
-                    Assertions.assertArrayEquals(
-                            FileUtils.readFileToByteArray(
-                                    Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                            ),
-                            FileUtils.readFileToByteArray(
-                                    Paths.get( "target/out/fake_out.tar" ).toFile()
-                            )
+                Throwable.class, () -> {
+                    TarCompareUtil.assertTarEquals(
+                          "src/test/resources/decode1.tar.rebecca",
+                            "target/out/fake_out.tar"
                     );
                 }
         );

@@ -1,7 +1,10 @@
 package com.xenoamess.docker.image.rebecca.cmd;
 
+import java.util.Collection;
+
 import com.xenoamess.docker.image.rebecca.decode.Decoder;
 import com.xenoamess.docker.image.rebecca.encode.Encoder;
+import com.xenoamess.docker.image.rebecca.scan.Scanner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +49,21 @@ public class RebeccaCommandLine {
                     );
                 } else {
                     decode(
+                            args[1],
+                            null
+                    );
+                }
+                break;
+            case "scan":
+            case "-scan":
+            case "--scan":
+                if (args.length >= 3) {
+                    scan(
+                            args[1],
+                            args[2]
+                    );
+                } else {
+                    scan(
                             args[1],
                             null
                     );
@@ -98,6 +116,22 @@ public class RebeccaCommandLine {
                 inputFilePath,
                 outputFilePath
         );
+    }
+
+    public static void scan(
+            @NotNull String inputFileOrFolderPath,
+            @Nullable String fileNameFilterRegexString
+    ) {
+        System.out.println( "inputFileOrFolderPath : " + inputFileOrFolderPath );
+        System.out.println( "fileNameFilterRegexString : " + fileNameFilterRegexString );
+        @NotNull Collection<String> result = Scanner.scan(
+                inputFileOrFolderPath,
+                fileNameFilterRegexString
+        );
+        System.out.println( "scan final matched files : " );
+        for (String fileName : result) {
+            System.out.println( fileName );
+        }
     }
 
 }

@@ -1,50 +1,34 @@
 package com.xenoamess.docker.image.rebecca.encode;
 
-import java.nio.file.Paths;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+import com.xenoamess.docker.image.rebecca.decode.Decoder;
+import com.xenoamess.docker.image.rebecca.utils.TarCompareUtil;
 import org.junit.jupiter.api.Test;
 
 public class EncoderTest {
 
-    @Disabled
     @Test
     public void testOnLocal() throws Exception {
         Encoder.encode(
                 "src/test/resources/0.tar"
         );
-        Assertions.assertArrayEquals(
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/decode0.tar.rebecca" ).toFile()
-                ),
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/0.tar.rebecca" ).toFile()
-                )
+        TarCompareUtil.assertTarEquals(
+                "src/test/resources/decode0.tar.rebecca",
+                "src/test/resources/0.tar.rebecca"
         );
         Encoder.encode(
                 "src/test/resources/1.tar"
         );
-        Assertions.assertArrayEquals(
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                ),
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/1.tar.rebecca" ).toFile()
-                )
+        TarCompareUtil.assertTarEquals(
+                "src/test/resources/decode1.tar.rebecca",
+                "src/test/resources/1.tar.rebecca"
         );
         Encoder.encode(
                 "src/test/resources/1.tar",
                 "target/out/1_out.tar"
         );
-        Assertions.assertArrayEquals(
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                ),
-                FileUtils.readFileToByteArray(
-                        Paths.get( "target/out/1_out.tar" ).toFile()
-                )
+        TarCompareUtil.assertTarEquals(
+                "src/test/resources/decode1.tar.rebecca",
+                "target/out/1_out.tar"
         );
     }
 
@@ -59,6 +43,22 @@ public class EncoderTest {
         Encoder.encode(
                 "src/test/resources/1.tar",
                 "target/out/1_out.tar"
+        );
+    }
+
+    @Test
+    public void testLink() throws Exception {
+        Encoder.encode(
+                "src/test/resources/link.tar"
+        );
+        Decoder.decode(
+                "src/test/resources/link.tar.rebecca"
+        );
+        Encoder.encode(
+                "src/test/resources/link2.tar"
+        );
+        Decoder.decode(
+                "src/test/resources/link2.tar.rebecca"
         );
     }
 
