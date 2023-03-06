@@ -290,7 +290,7 @@ public class Encoder {
 //                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
 //                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
                         outputTarArchiveEntry.setModTime( FileTime.fromMillis( 0 ) );
-//                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+                        outputTarArchiveEntry.setStatusChangeTime( FileTime.fromMillis( 0 ) );
                         outputTarArchiveEntry.setUserId( 0 );
 //                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
                     }
@@ -520,7 +520,7 @@ public class Encoder {
 //                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
 //                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
             fileTarArchiveEntry.setModTime( FileTime.fromMillis( 0 ) );
-//                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+            fileTarArchiveEntry.setStatusChangeTime( FileTime.fromMillis( 0 ) );
             fileTarArchiveEntry.setUserId( 0 );
 //                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
             rootOuterTarArchiveOutputStream.putArchiveEntry( fileTarArchiveEntry );

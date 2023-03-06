@@ -259,20 +259,21 @@ public class Decoder {
 //                    outputTarArchiveEntry.setLinkName(outerInputTarArchiveEntry.getLinkName());
 //                    outputTarArchiveEntry.setMode(outerInputTarArchiveEntry.getMode());
                         outputTarArchiveEntry.setModTime( FileTime.fromMillis( 0 ) );
-//                    outputTarArchiveEntry.setStatusChangeTime(outerInputTarArchiveEntry.getStatusChangeTime());
+                        outputTarArchiveEntry.setStatusChangeTime( FileTime.fromMillis( 0 ) );
 //                    outputTarArchiveEntry.setUserId(outerInputTarArchiveEntry.getLongUserId());
 //                    outputTarArchiveEntry.setUserName(outerInputTarArchiveEntry.getUserName());
                     }
-                    outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                     if (changed) {
                         outputTarArchiveEntry.setSize(
                                 Files.size( Paths.get( outputFileRebecca ) )
                         );
+                        outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( outputFileRebecca ) ), outerTarArchiveOutputStream );
                     } else {
                         outputTarArchiveEntry.setSize(
                                 Files.size( Paths.get( tmpInputFilePath ) )
                         );
+                        outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( tmpInputFilePath ) ), outerTarArchiveOutputStream );
                     }
                     Paths.get( tmpInputFilePath ).toFile().delete();

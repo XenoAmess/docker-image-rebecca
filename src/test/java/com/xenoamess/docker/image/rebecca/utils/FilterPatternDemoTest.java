@@ -55,7 +55,6 @@ public class FilterPatternDemoTest {
             "^ADDITIONAL_LICENSE_INFO$"
     );
 
-    @Disabled
     @Test
     public void testOnLocal() throws Exception {
         List<String> list = new ArrayList<>(SUB_PATTERN_STRINGS);
