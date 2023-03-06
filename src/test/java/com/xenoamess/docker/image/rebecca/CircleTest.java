@@ -26,7 +26,7 @@ public class CircleTest {
                 "target/out/1.tar.rebecca"
         );
         Encoder.encode(
-                "src/test/resources/1.tar.rebecca",
+                "target/out/1.tar.rebecca",
                 "target/out/1.tar.rebecca.rebecca"
         );
         Encoder.encode(
