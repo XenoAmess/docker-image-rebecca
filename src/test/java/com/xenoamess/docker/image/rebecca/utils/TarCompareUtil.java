@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Assertions;
  */
 public final class TarCompareUtil {
 
-    public static final void assertArchiveEquals(String type, String archive1, String archive2) throws NoSuchAlgorithmException, IOException {
+    public static void assertArchiveEquals(String type, String archive1, String archive2) throws NoSuchAlgorithmException, IOException {
         if (type.endsWith( "zip" )) {
             assertZipEquals( archive1, archive2 );
         } else {
@@ -37,7 +37,7 @@ public final class TarCompareUtil {
      * @throws ZipException
      * @throws IOException
      */
-    public static final void assertZipEquals(String archive1, String archive2) throws ZipException, IOException {
+    public static void assertZipEquals(String archive1, String archive2) throws ZipException, IOException {
         // Get Archives
         ZipFile zipFile1 = new ZipFile(new File(archive1));
         ZipFile zipFile2 = new ZipFile(new File(archive2));
@@ -55,7 +55,7 @@ public final class TarCompareUtil {
      * @return
      * @throws IOException
      */
-    private static final HashMap<String, ZipEntry> getMembers(ZipFile archive) throws IOException {
+    private static HashMap<String, ZipEntry> getMembers(ZipFile archive) throws IOException {
         HashMap<String, ZipEntry> map = new HashMap<String, ZipEntry>();
         @SuppressWarnings("unchecked")
         Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) archive.entries();
@@ -73,10 +73,10 @@ public final class TarCompareUtil {
      * @param files2
      * @throws IOException
      */
-    private static final void assertMembersEqual(ZipFile zip1, HashMap<String, ZipEntry> files1,
-                                                 ZipFile zip2, HashMap<String, ZipEntry> files2) throws IOException {
+    private static void assertMembersEqual(ZipFile zip1, HashMap<String, ZipEntry> files1,
+                                           ZipFile zip2, HashMap<String, ZipEntry> files2) throws IOException {
         if (files1.size() != files2.size()) {
-            Assertions.fail( "Different Sizes, expected " + Integer.toString( files1.size() ) + " found " + Integer.toString( files2.size() ) );
+            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size());
         }
 
         for (String key : files1.keySet()) {
@@ -95,7 +95,7 @@ public final class TarCompareUtil {
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
-    public static final void assertTarEquals(String archive1, String archive2) throws IOException, NoSuchAlgorithmException {
+    public static void assertTarEquals(String archive1, String archive2) throws IOException, NoSuchAlgorithmException {
         // Get Member Hash
         HashMap<String, TarArchiveEntry> files1 = getMembers( archive1 );
         HashMap<String, TarArchiveEntry> files2 = getMembers( archive2 );
@@ -109,7 +109,7 @@ public final class TarCompareUtil {
      * @return
      * @throws IOException
      */
-    private static final HashMap<String, TarArchiveEntry> getMembers(String archive) throws IOException {
+    private static HashMap<String, TarArchiveEntry> getMembers(String archive) throws IOException {
         TarArchiveInputStream input = new TarArchiveInputStream(
                 new BufferedInputStream(
                         new FileInputStream(archive)));
@@ -130,10 +130,10 @@ public final class TarCompareUtil {
      * @param files2
      * @throws IOException
      */
-    private static final void assertMembersEqual(String tar1, HashMap<String, TarArchiveEntry> files1,
-                                                 String tar2, HashMap<String, TarArchiveEntry> files2) throws IOException {
+    private static void assertMembersEqual(String tar1, HashMap<String, TarArchiveEntry> files1,
+                                           String tar2, HashMap<String, TarArchiveEntry> files2) throws IOException {
         if (files1.size() != files2.size()) {
-            Assertions.fail( "Different Sizes, expected " + Integer.toString( files1.size() ) + " found " + Integer.toString( files2.size() ) );
+            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size());
         }
 
         for (String key : files1.keySet()) {
@@ -160,7 +160,7 @@ public final class TarCompareUtil {
      * @return
      * @throws IOException
      */
-    private static final String getTarFile(String archive, String name) throws IOException {
+    private static String getTarFile(String archive, String name) throws IOException {
         TarArchiveInputStream input = new TarArchiveInputStream(
                 new BufferedInputStream(
                         new FileInputStream(archive)));
