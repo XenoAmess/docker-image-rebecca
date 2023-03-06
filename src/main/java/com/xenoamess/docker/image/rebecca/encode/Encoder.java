@@ -261,7 +261,10 @@ public class Encoder {
                 TarArchiveEntry outputTarArchiveEntry = null;
                 try {
                     if (outerInputTarArchiveEntry != null) {
-                        outputTarArchiveEntry = new TarArchiveEntry(Paths.get( outputFileRebecca ));
+                        outputTarArchiveEntry = new TarArchiveEntry(
+                                outerInputTarArchiveEntry.getName(),
+                                getLinkByte( outerInputTarArchiveEntry )
+                        );
                         outputTarArchiveEntry.setName( outerInputTarArchiveEntry.getName() );
                         outputTarArchiveEntry.setCreationTime( outerInputTarArchiveEntry.getCreationTime() );
                         outputTarArchiveEntry.setDevMajor( outerInputTarArchiveEntry.getDevMajor() );
