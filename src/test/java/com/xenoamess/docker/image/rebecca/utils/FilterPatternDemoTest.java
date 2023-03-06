@@ -69,13 +69,9 @@ public class FilterPatternDemoTest {
                 "target/out/1_out.tar",
                 goodRegex
         );
-        Assertions.assertArrayEquals(
-                FileUtils.readFileToByteArray(
-                        Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                ),
-                FileUtils.readFileToByteArray(
-                        Paths.get( "target/out/1_out.tar" ).toFile()
-                )
+        TarCompareUtil.assertTarEquals(
+                        "src/test/resources/decode1.tar.rebecca",
+      "target/out/1_out.tar"
         );
 
         Encoder.encode(
@@ -85,13 +81,9 @@ public class FilterPatternDemoTest {
         );
         Assertions.assertThrows(
                 Throwable.class, () -> {
-                    Assertions.assertArrayEquals(
-                            FileUtils.readFileToByteArray(
-                                    Paths.get( "src/test/resources/decode1.tar.rebecca" ).toFile()
-                            ),
-                            FileUtils.readFileToByteArray(
-                                    Paths.get( "target/out/fake_out.tar" ).toFile()
-                            )
+                    TarCompareUtil.assertTarEquals(
+                          "src/test/resources/decode1.tar.rebecca",
+                            "target/out/fake_out.tar"
                     );
                 }
         );

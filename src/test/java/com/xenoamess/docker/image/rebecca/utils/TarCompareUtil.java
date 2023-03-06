@@ -76,7 +76,7 @@ public final class TarCompareUtil {
     private static void assertMembersEqual(ZipFile zip1, HashMap<String, ZipEntry> files1,
                                            ZipFile zip2, HashMap<String, ZipEntry> files2) throws IOException {
         if (files1.size() != files2.size()) {
-            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size());
+            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size() );
         }
 
         for (String key : files1.keySet()) {
@@ -133,7 +133,7 @@ public final class TarCompareUtil {
     private static void assertMembersEqual(String tar1, HashMap<String, TarArchiveEntry> files1,
                                            String tar2, HashMap<String, TarArchiveEntry> files2) throws IOException {
         if (files1.size() != files2.size()) {
-            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size());
+            Assertions.fail( "Different Sizes, expected " + files1.size() + " found " + files2.size() );
         }
 
         for (String key : files1.keySet()) {
