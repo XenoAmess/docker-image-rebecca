@@ -23,6 +23,7 @@ public class FrontHashFilesPreparer {
     public static Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepare(
             @NotNull String inputFilePath
     ) {
+        System.out.println( "----------frontHashFilesPrepare started----------" );
         final Map<String, FrontHashFilesPreparePojo> result = new HashMap<>();
         try (
                 InputStream inputStream = Files.newInputStream( Paths.get( inputFilePath ) );
@@ -36,6 +37,7 @@ public class FrontHashFilesPreparer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println( "----------frontHashFilesPrepare ended----------" );
         return result;
     }
 

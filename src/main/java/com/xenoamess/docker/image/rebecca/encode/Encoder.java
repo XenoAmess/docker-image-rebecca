@@ -56,6 +56,7 @@ public class Encoder {
             @Nullable String outputFilePath,
             @Nullable String fileNameFilterRegexString
     ) {
+        System.out.println( "----------encode started----------" );
         Map<String, FrontSearchResultPojo> frontSearchResult = FrontSearcher.frontSearch(
                 inputFilePath,
                 fileNameFilterRegexString
@@ -112,6 +113,7 @@ public class Encoder {
                 e.printStackTrace();
             }
         }
+        System.out.println( "----------encode ended----------" );
     }
 
     static boolean handleTarFile(
@@ -300,12 +302,14 @@ public class Encoder {
                         );
                         outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( outputFileRebecca ) ), outerTarArchiveOutputStream );
+                        System.out.println( "changed tar saved : " + outputTarArchiveEntry.getName() );
                     } else {
                         outputTarArchiveEntry.setSize(
                                 Files.size( Paths.get( tmpInputFilePath ) )
                         );
                         outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( tmpInputFilePath ) ), outerTarArchiveOutputStream );
+                        System.out.println( "unchanged tar saved : " + outputTarArchiveEntry.getName() );
                     }
                     Paths.get( tmpInputFilePath ).toFile().delete();
                     outputTarArchiveEntry.setSize( outerTarArchiveOutputStream.getBytesWritten() );

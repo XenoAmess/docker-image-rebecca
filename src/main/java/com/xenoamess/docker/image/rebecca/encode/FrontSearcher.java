@@ -28,6 +28,7 @@ public class FrontSearcher {
             @NotNull String inputFilePath,
             @Nullable Predicate<Map.Entry<@Nullable String, @NotNull FrontSearchResultPojo>> filter
     ) {
+        System.out.println( "----------frontSearch started----------" );
         final Map<String, FrontSearchResultPojo> hashToCountPre = new HashMap<>();
         try (
                 InputStream inputStream = Files.newInputStream( Paths.get( inputFilePath ) );
@@ -63,6 +64,7 @@ public class FrontSearcher {
                     entry.getValue()
             );
         }
+        System.out.println( "----------frontSearch ended----------" );
         return hashMap;
     }
 
