@@ -9,7 +9,6 @@ import com.xenoamess.docker.image.rebecca.encode.Encoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class FilterPatternDemoTest {
