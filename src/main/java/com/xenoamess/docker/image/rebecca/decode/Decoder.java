@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.xenoamess.docker.image.rebecca.encode.Encoder.getLinkByte;
 import static com.xenoamess.docker.image.rebecca.encode.Encoder.handleDirectory;
 import static com.xenoamess.docker.image.rebecca.encode.Encoder.handleLinkFile;
 import static com.xenoamess.docker.image.rebecca.encode.FrontSearcher.isLinkFile;
@@ -299,7 +300,10 @@ public class Decoder {
             @NotNull Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult
     ) {
         System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
-        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
+        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
+                inputTarArchiveEntry.getName(),
+                getLinkByte( inputTarArchiveEntry )
+        );
         try {
             outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
             outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );

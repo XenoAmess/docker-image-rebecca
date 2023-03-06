@@ -238,8 +238,9 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
+            <groupId>com.xenoamess.fork.org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
+            <version>1.23.x.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -258,11 +259,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>1.22</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>

@@ -19,6 +19,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.xenoamess.docker.image.rebecca.encode.Encoder.getLinkByte;
+
 public class FrontSearcher {
 
     @NotNull
@@ -210,7 +212,8 @@ public class FrontSearcher {
         final long inputFileSize = inputTarArchiveEntry.getRealSize();
         System.out.println( "normal file : " + inputFileName );
         TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
-                inputFileName
+                inputFileName,
+                getLinkByte( inputTarArchiveEntry )
         );
         if (filter != null) {
             FrontSearchResultPojo frontSearchResultPojo = new FrontSearchResultPojo();

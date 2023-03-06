@@ -341,7 +341,10 @@ public class Encoder {
     ) {
         System.out.println( "directory : " + inputTarArchiveEntry.getName() );
         try {
-            TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName(), TarConstants.LF_DIR);
+            TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
+                    inputTarArchiveEntry.getName(),
+                    getLinkByte( inputTarArchiveEntry )
+            );
             outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
             outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
             outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
@@ -366,22 +369,27 @@ public class Encoder {
         }
     }
 
-    static byte getLinkByte(
+    public static byte getLinkByte(
             @NotNull TarArchiveEntry inputTarArchiveEntry
     ) {
-        if (inputTarArchiveEntry.isLink()) {
-            return TarConstants.LF_LINK;
+        try {
+            return inputTarArchiveEntry.getLinkFlag();
+        } catch (Throwable ignored) {
+            System.out.println( "no home-made getLinkByte, use original instead" );
+            if (inputTarArchiveEntry.isLink()) {
+                return TarConstants.LF_LINK;
+            }
+            if (inputTarArchiveEntry.isSymbolicLink()) {
+                return TarConstants.LF_SYMLINK;
+            }
+            if (inputTarArchiveEntry.isGNULongLinkEntry()) {
+                return TarConstants.LF_GNUTYPE_LONGLINK;
+            }
+            if (inputTarArchiveEntry.isDirectory()) {
+                return TarConstants.LF_DIR;
+            }
+            return TarConstants.LF_NORMAL;
         }
-        if (inputTarArchiveEntry.isSymbolicLink()) {
-            return TarConstants.LF_SYMLINK;
-        }
-        if (inputTarArchiveEntry.isGNULongLinkEntry()) {
-            return TarConstants.LF_GNUTYPE_LONGLINK;
-        }
-        if (inputTarArchiveEntry.isDirectory()) {
-            return TarConstants.LF_DIR;
-        }
-        return TarConstants.LF_NORMAL;
     }
 
     public static void handleLinkFile(
@@ -428,7 +436,10 @@ public class Encoder {
             @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
-        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName(), TarConstants.LF_NORMAL);
+        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
+                inputTarArchiveEntry.getName(),
+                getLinkByte( inputTarArchiveEntry )
+        );
         try {
             outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
             outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
