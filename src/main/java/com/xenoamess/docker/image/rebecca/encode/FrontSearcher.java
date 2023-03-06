@@ -136,6 +136,12 @@ public class FrontSearcher {
                 if (inputTarArchiveEntry == null) {
                     break;
                 }
+                if (isSpecialFile( inputTarArchiveEntry )) {
+                    handleSpecialFile(
+                            outerTarArchiveInputStream,
+                            inputTarArchiveEntry
+                    );
+                }
                 if (inputTarArchiveEntry.getName().endsWith( ".tar" )) {
                     String outputFileOri2 = rootInputTarFileName + "." + UUID.randomUUID() + ".ori";
                     String outputFileRebecca2 = outputFileOri2 + ".rebecca";
@@ -166,6 +172,31 @@ public class FrontSearcher {
         }
         if (outerInputTarArchiveEntry != null) {
             System.out.println( "tar file handling ended : " + outerInputTarArchiveEntry.getName() );
+        }
+    }
+
+    public static boolean isSpecialFile(
+            @NotNull TarArchiveEntry inputTarArchiveEntry
+    ) {
+        return !inputTarArchiveEntry.isFile() || isLinkFile( inputTarArchiveEntry );
+    }
+
+    public static boolean isLinkFile(
+            @NotNull TarArchiveEntry inputTarArchiveEntry
+    ) {
+        return inputTarArchiveEntry.isLink() || inputTarArchiveEntry.isSymbolicLink() || inputTarArchiveEntry.isGNULongLinkEntry();
+    }
+
+    private static void handleSpecialFile(
+            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
+            @NotNull TarArchiveEntry inputTarArchiveEntry
+    ) {
+        System.out.println( "no match, continue special file name : " + inputTarArchiveEntry.getName() );
+        System.out.println( "link name : " + inputTarArchiveEntry.getLinkName() );
+        try {
+            outerTarArchiveInputStream.getNextTarEntry();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

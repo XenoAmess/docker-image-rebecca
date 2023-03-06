@@ -23,10 +23,13 @@ import com.xenoamess.docker.image.rebecca.utils.ReadAndHashUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarConstants;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.xenoamess.docker.image.rebecca.encode.FrontSearcher.isLinkFile;
 
 public class Encoder {
 
@@ -166,6 +169,22 @@ public class Encoder {
                 if (inputTarArchiveEntry == null) {
                     break;
                 }
+                if (inputTarArchiveEntry.isDirectory()) {
+                    handleDirectory(
+                            outerTarArchiveInputStream,
+                            inputTarArchiveEntry,
+                            tarArchiveOutputStream
+                    );
+                    continue;
+                }
+                if (isLinkFile( inputTarArchiveEntry )) {
+                    handleLinkFile(
+                            outerTarArchiveInputStream,
+                            inputTarArchiveEntry,
+                            tarArchiveOutputStream
+                    );
+                    continue;
+                }
                 if (inputTarArchiveEntry.getName().endsWith( ".tar" )) {
                     String outputFileOri2 = rootInputFilePath + "." + UUID.randomUUID() + ".ori";
                     String outputFileRebecca2 = outputFileOri2 + ".rebecca";
@@ -277,6 +296,92 @@ public class Encoder {
 //        );
 //    }
 
+
+    public static void handleDirectory(
+            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
+            @NotNull TarArchiveEntry inputTarArchiveEntry,
+            @NotNull TarArchiveOutputStream tarArchiveOutputStream
+    ) {
+        System.out.println( "directory : " + inputTarArchiveEntry.getName() );
+        try {
+            TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName(), TarConstants.LF_DIR);
+            outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+            outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
+            outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
+            outputTarArchiveEntry.setDevMinor( inputTarArchiveEntry.getDevMinor() );
+            outputTarArchiveEntry.setGroupId( inputTarArchiveEntry.getLongGroupId() );
+            outputTarArchiveEntry.setLastAccessTime( inputTarArchiveEntry.getLastAccessTime() );
+            outputTarArchiveEntry.setLastModifiedTime( inputTarArchiveEntry.getLastModifiedTime() );
+            outputTarArchiveEntry.setLinkName( inputTarArchiveEntry.getLinkName() );
+            outputTarArchiveEntry.setMode( inputTarArchiveEntry.getMode() );
+            outputTarArchiveEntry.setModTime( inputTarArchiveEntry.getModTime() );
+            outputTarArchiveEntry.setSize( inputTarArchiveEntry.getSize() );
+            outputTarArchiveEntry.setStatusChangeTime( inputTarArchiveEntry.getStatusChangeTime() );
+            outputTarArchiveEntry.setUserId( inputTarArchiveEntry.getLongUserId() );
+            outputTarArchiveEntry.setUserName( inputTarArchiveEntry.getUserName() );
+
+            tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+            IOUtils.copy( outerTarArchiveInputStream, tarArchiveOutputStream );
+            outputTarArchiveEntry.setSize( tarArchiveOutputStream.getBytesWritten() );
+            tarArchiveOutputStream.closeArchiveEntry();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static byte getLinkByte(
+            @NotNull TarArchiveEntry inputTarArchiveEntry
+    ) {
+        if (inputTarArchiveEntry.isLink()) {
+            return TarConstants.LF_LINK;
+        }
+        if (inputTarArchiveEntry.isSymbolicLink()) {
+            return TarConstants.LF_SYMLINK;
+        }
+        if (inputTarArchiveEntry.isGNULongLinkEntry()) {
+            return TarConstants.LF_GNUTYPE_LONGLINK;
+        }
+        if (inputTarArchiveEntry.isDirectory()) {
+            return TarConstants.LF_DIR;
+        }
+        return TarConstants.LF_NORMAL;
+    }
+
+    public static void handleLinkFile(
+            @NotNull TarArchiveInputStream outerTarArchiveInputStream,
+            @NotNull TarArchiveEntry inputTarArchiveEntry,
+            @NotNull TarArchiveOutputStream tarArchiveOutputStream
+    ) {
+        System.out.println( "special file : " + inputTarArchiveEntry.getName() );
+        try {
+            TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
+                    inputTarArchiveEntry.getName(),
+                    getLinkByte( inputTarArchiveEntry )
+            );
+            outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
+            outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );
+            outputTarArchiveEntry.setDevMajor( inputTarArchiveEntry.getDevMajor() );
+            outputTarArchiveEntry.setDevMinor( inputTarArchiveEntry.getDevMinor() );
+            outputTarArchiveEntry.setGroupId( inputTarArchiveEntry.getLongGroupId() );
+            outputTarArchiveEntry.setLastAccessTime( inputTarArchiveEntry.getLastAccessTime() );
+            outputTarArchiveEntry.setLastModifiedTime( inputTarArchiveEntry.getLastModifiedTime() );
+            outputTarArchiveEntry.setLinkName( inputTarArchiveEntry.getLinkName() );
+            outputTarArchiveEntry.setMode( inputTarArchiveEntry.getMode() );
+            outputTarArchiveEntry.setModTime( inputTarArchiveEntry.getModTime() );
+            outputTarArchiveEntry.setSize( inputTarArchiveEntry.getSize() );
+            outputTarArchiveEntry.setStatusChangeTime( inputTarArchiveEntry.getStatusChangeTime() );
+            outputTarArchiveEntry.setUserId( inputTarArchiveEntry.getLongUserId() );
+            outputTarArchiveEntry.setUserName( inputTarArchiveEntry.getUserName() );
+
+            tarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
+            IOUtils.copy( outerTarArchiveInputStream, tarArchiveOutputStream );
+            outputTarArchiveEntry.setSize( tarArchiveOutputStream.getBytesWritten() );
+            tarArchiveOutputStream.closeArchiveEntry();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void handleNormalFile(
             @NotNull TarArchiveInputStream outerTarArchiveInputStream,
             @NotNull TarArchiveEntry inputTarArchiveEntry,
@@ -286,7 +391,7 @@ public class Encoder {
             @NotNull Map<String, File> tempDuplicatedFiles
     ) {
         System.out.println( "normal file : " + inputTarArchiveEntry.getName() );
-        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName());
+        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(inputTarArchiveEntry.getName(), TarConstants.LF_NORMAL);
         try {
             outputTarArchiveEntry.setName( inputTarArchiveEntry.getName() );
             outputTarArchiveEntry.setCreationTime( inputTarArchiveEntry.getCreationTime() );

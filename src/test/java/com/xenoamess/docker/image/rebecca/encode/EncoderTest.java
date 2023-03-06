@@ -2,6 +2,7 @@ package com.xenoamess.docker.image.rebecca.encode;
 
 import java.nio.file.Paths;
 
+import com.xenoamess.docker.image.rebecca.decode.Decoder;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -59,6 +60,22 @@ public class EncoderTest {
         Encoder.encode(
                 "src/test/resources/1.tar",
                 "target/out/1_out.tar"
+        );
+    }
+
+    @Test
+    public void testLink() throws Exception {
+        Encoder.encode(
+                "src/test/resources/link.tar"
+        );
+        Decoder.decode(
+                "src/test/resources/link.tar.rebecca"
+        );
+        Encoder.encode(
+                "src/test/resources/link2.tar"
+        );
+        Decoder.decode(
+                "src/test/resources/link2.tar.rebecca"
         );
     }
 

@@ -28,6 +28,10 @@ import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.xenoamess.docker.image.rebecca.encode.Encoder.handleDirectory;
+import static com.xenoamess.docker.image.rebecca.encode.Encoder.handleLinkFile;
+import static com.xenoamess.docker.image.rebecca.encode.FrontSearcher.isLinkFile;
+
 public class Decoder {
 
     public static void decode(@NotNull String inputFilePath) {
@@ -139,6 +143,22 @@ public class Decoder {
                 TarArchiveEntry inputTarArchiveEntry = outerTarArchiveInputStream.getNextTarEntry();
                 if (inputTarArchiveEntry == null) {
                     break;
+                }
+                if (inputTarArchiveEntry.isDirectory()) {
+                    handleDirectory(
+                            outerTarArchiveInputStream,
+                            inputTarArchiveEntry,
+                            tarArchiveOutputStream
+                    );
+                    continue;
+                }
+                if (isLinkFile( inputTarArchiveEntry )) {
+                    handleLinkFile(
+                            outerTarArchiveInputStream,
+                            inputTarArchiveEntry,
+                            tarArchiveOutputStream
+                    );
+                    continue;
                 }
                 if (inputTarArchiveEntry.getName().endsWith( ".tar" )) {
                     String outputFileOri2 = rootInputFilePath + "." + UUID.randomUUID() + ".ori";
