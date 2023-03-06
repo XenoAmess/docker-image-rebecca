@@ -2,6 +2,7 @@ package com.xenoamess.docker.image.rebecca;
 
 import com.xenoamess.docker.image.rebecca.decode.Decoder;
 import com.xenoamess.docker.image.rebecca.encode.Encoder;
+import com.xenoamess.docker.image.rebecca.utils.TarCompareUtil;
 import org.junit.jupiter.api.Test;
 
 public class CircleTest {
@@ -36,8 +37,16 @@ public class CircleTest {
                 "target/out/1.tar.rebecca.rebecca.rebecca",
                 "target/out/1_out.tar.rebecca.rebecca"
         );
+        TarCompareUtil.assertTarEquals(
+                "target/out/1.tar.rebecca.rebecca",
+                "target/out/1_out.tar.rebecca.rebecca"
+        );
         Decoder.decode(
                 "target/out/1_out.tar.rebecca.rebecca",
+                "target/out/1_out.tar.rebecca"
+        );
+        TarCompareUtil.assertTarEquals(
+                "target/out/1.tar.rebecca",
                 "target/out/1_out.tar.rebecca"
         );
         Decoder.decode(
