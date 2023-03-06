@@ -86,16 +86,6 @@ public class Scanner {
 
                     @Override
                     public boolean test(Map.Entry<String, FrontSearchResultPojo> entry) {
-                        if (entry.getValue().getCount() <= 1) {
-                            // no need to rebecca if only 1
-                            return false;
-                        }
-                        for (long fileSize : entry.getValue().getFileSizes()) {
-                            if (fileSize < 1024 * 4) {
-                                // too small file have no compress value
-                                return false;
-                            }
-                        }
                         if (fileNameFilterRegexPattern != null) {
                             for (String fileName : entry.getValue().getFileNames()) {
                                 if (!fileNameFilterRegexPattern.matcher( fileName ).matches()) {
@@ -141,12 +131,14 @@ public class Scanner {
                     BufferedInputStream bufferedInputStream = new BufferedInputStream(outerTarArchiveInputStream);
                     TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(bufferedInputStream);
                     try {
-                        if (handleTarFile(
-                                rootInputTarFileName,
-                                tarArchiveInputStream,
-                                inputTarArchiveEntry,
-                                filter
-                        )) {
+                        if (
+                                handleTarFile(
+                                        rootInputTarFileName,
+                                        tarArchiveInputStream,
+                                        inputTarArchiveEntry,
+                                        filter
+                                )
+                        ) {
                             return true;
                         }
                     } catch (Exception e) {
@@ -181,9 +173,6 @@ public class Scanner {
         final String inputFileName = inputTarArchiveEntry.getName();
         final long inputFileSize = inputTarArchiveEntry.getRealSize();
         System.out.println( "normal file : " + inputFileName );
-        TarArchiveEntry outputTarArchiveEntry = new TarArchiveEntry(
-                inputFileName
-        );
         if (filter != null) {
             FrontSearchResultPojo scanResultPojo = new FrontSearchResultPojo();
             scanResultPojo.setCount( Integer.MAX_VALUE );
