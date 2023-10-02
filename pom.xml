@@ -43,7 +43,7 @@
         <!---->
         <!--libraries versions-->
         <annotations.version>24.0.1</annotations.version>
-        <commons-io.version>2.13.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-lang3.version>3.13.0</commons-lang3.version>
         <!---->
         <!---->
