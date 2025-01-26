@@ -39,6 +39,7 @@ public class Decoder {
             @NotNull String inputFilePath,
             @Nullable String outputFilePath
     ) {
+        System.out.println( "----------decode started----------" );
         Map<String, FrontHashFilesPreparePojo> frontHashFilesPrepareResult = FrontHashFilesPreparer.frontHashFilesPrepare( inputFilePath );
         try (
                 TarFile outerTarFile = new TarFile(Paths.get( inputFilePath ));
@@ -87,6 +88,7 @@ public class Decoder {
                 e.printStackTrace();
             }
         }
+        System.out.println( "----------decode ended----------" );
     }
 
     static boolean handleTarFile(
@@ -269,12 +271,14 @@ public class Decoder {
                         );
                         outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( outputFileRebecca ) ), outerTarArchiveOutputStream );
+                        System.out.println( "changed tar saved : " + outputTarArchiveEntry.getName() );
                     } else {
                         outputTarArchiveEntry.setSize(
                                 Files.size( Paths.get( tmpInputFilePath ) )
                         );
                         outerTarArchiveOutputStream.putArchiveEntry( outputTarArchiveEntry );
                         IOUtils.copy( Files.newInputStream( Paths.get( tmpInputFilePath ) ), outerTarArchiveOutputStream );
+                        System.out.println( "unchanged tar saved : " + outputTarArchiveEntry.getName() );
                     }
                     Paths.get( tmpInputFilePath ).toFile().delete();
                     outputTarArchiveEntry.setSize( outerTarArchiveOutputStream.getBytesWritten() );

@@ -42,28 +42,28 @@
         <!---->
         <!---->
         <!--libraries versions-->
-        <annotations.version>24.0.1</annotations.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <annotations.version>24.1.0</annotations.version>
+        <commons-io.version>2.16.1</commons-io.version>
+        <commons-lang3.version>3.14.0</commons-lang3.version>
         <!---->
         <!---->
         <!--maven plugins versions-->
-        <junit-jupiter.version>5.9.2</junit-jupiter.version>
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
-        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
-        <maven-project-info-reports-plugin.version>3.4.2</maven-project-info-reports-plugin.version>
+        <junit-jupiter.version>5.10.2</junit-jupiter.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
+        <maven-gpg-plugin.version>3.2.4</maven-gpg-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
         <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
-        <versions-maven-plugin.version>2.15.0</versions-maven-plugin.version>
-        <maven-dependency-plugin.version>3.5.0</maven-dependency-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <!--enforce-->
         <enforce.activate>true</enforce.activate>
-        <maven-enforcer-plugin.version>3.2.1</maven-enforcer-plugin.version>
-        <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
+        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
+        <checkstyle.plugin.version>3.3.1</checkstyle.plugin.version>
         <checkstyle.version>9.3</checkstyle.version>
         <checkstyle.configdir>src/site/resources/checkstyle</checkstyle.configdir>
     </properties>
@@ -193,7 +193,7 @@
                     <plugin>
                         <groupId>org.openrewrite.maven</groupId>
                         <artifactId>rewrite-maven-plugin</artifactId>
-                        <version>4.41.0</version>
+                        <version>5.28.0</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -453,7 +453,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <goals>
