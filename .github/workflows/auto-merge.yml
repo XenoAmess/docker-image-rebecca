@@ -19,14 +19,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Wait for CI checks
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
-      - name: Auto-merge Dependabot PRs
+      - name: Enable auto-merge for Dependabot PRs
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
           steps.metadata.outputs.update-type == 'version-update:semver-patch'
