@@ -12,24 +12,9 @@ updates:
     commit-message:
       prefix: "build(deps)"
       prefix-development: "build(deps-dev)"
-      include: "scope"
     labels:
       - "dependencies"
       - "java"
-    groups:
-      maven-minor-and-patch:
-        applies-to: version-updates
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
-      maven-major:
-        applies-to: version-updates
-        patterns:
-          - "*"
-        update-types:
-          - "major"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -40,13 +25,7 @@ updates:
     target-branch: "master"
     open-pull-requests-limit: 5
     commit-message:
-      prefix: "build(deps)"
-      include: "scope"
+      prefix: "ci"
     labels:
       - "dependencies"
       - "github-actions"
-    groups:
-      github-actions:
-        applies-to: version-updates
-        patterns:
-          - "*"

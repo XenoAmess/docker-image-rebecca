@@ -113,6 +113,53 @@ gh api -X PATCH repos/XenoAmess/docker-image-rebecca -f allow_auto_merge=true
 
 ## 二、修复后踩到的额外问题
 
+### 1.5 第二轮优化(2025) — 去掉 `groups:` 与 `include: scope`
+
+修复后第一版用了 `groups: patterns: ["*"]` 把每个生态的所有升级合成一个 PR,看起来 PR 数量少了,实际踩到更糟的几个坑:
+
+1. **巨型 PR 无法定位失败**(Pitfall 13)。标题形如
+   `build(deps)(deps): bump the maven-major group with 1 update`,
+   失败时日志无法指向具体哪个依赖。 比如 PR #352
+   (`build(deps)(deps): bump com.puppycrawl.tools:checkstyle from 9.3 to 13.7.0 in the maven-major group`)
+   就是这套配置产出的。
+2. **Maven-major 分组把不该合的 major 留在人类手里,但被绑成了"巨型 major PR"**。
+   自动合并策略本来就是"maven major 留人工审",一旦所有 major 被绑成一个 PR,
+   人类就要一次性审 N 个破坏性升级,几乎不可能逐个判断。
+3. **`include: "scope"` 跟 `prefix:` 在 rebase 后会叠成双重前缀**
+   (`build(deps)(deps): ...`),纯 cosmetic 但噪声大。
+
+修法(本仓库当前配置):
+
+```yaml
+# .github/dependabot.yml — 关键变更点
+-      include: "scope"      # 删除,避免 (deps)(deps) 双前缀
++      prefix: "ci"          # github-actions 用 ci,跟 maven 的 build(deps) 区分
+       labels: [...]
+-      groups:               # 整段删除,回退到 "每依赖每周期一个 PR"
+-        maven-minor-and-patch:
+-          patterns: ["*"]
+-          update-types: [minor, patch]
+-        ...
+```
+
+回退到 `groups:` 之前的行为后:
+- 每个依赖每周最多一个 PR,  diff 足够小,  review / revert / bisect 都隔离
+- PR 计数上升, 但 prefix + labels 已经把整条流编得很整齐, 不会失控
+- 标题回到 `build(deps): bump <dep> from X to Y`,  `ci: bump actions/... from X to Y`
+
+#### 必须手动处理的孤儿 PR
+
+config 改了之后, 已开的 grouped PR 不会自动消失; dependabot 也不会自动把它们拆开。
+对 PR #352 这种"被 mvn major 策略拒收"、又是老 grouped 配置留下的 PR:
+
+```bash
+gh pr close <N> --delete-branch=false   # 关掉,下次 weekly 让 dependabot 开新的 per-dep PR
+```
+
+下次 weekly(周一 04:00 Asia/Shanghai)开始, dependabot 会按新配置生成 1 PR / 依赖。
+
+
+
 ### 2.1 推送时被 OAuth scope 拒绝
 
 ```
